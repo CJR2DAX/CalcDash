@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalcDash</title>
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='80' height='90' x='10' y='5' rx='10' ry='10' fill='%2306b6d4'/><rect width='60' height='20' x='20' y='15' rx='5' ry='5' fill='%231f2937'/><rect width='12' height='12' x='20' y='45' rx='3' ry='3' fill='%234b5563'/><rect width='12' height='12' x='44' y='45' rx='3' ry='3' fill='%234b5563'/><rect width='12' height='12' x='68' y='45' rx='3' ry='3' fill='%234b5563'/><rect width='12' height='12' x='20' y='65' rx='3' ry='3' fill='%234b5563'/><rect width='12' height='12' x='44' y='65' rx='3' ry='3' fill='%234b5563'/><rect width='12' height='12' x='68' y='65' rx='3' ry='3' fill='%234b5563'/></svg>">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style for the active operation button in the architectural calculator */
+        .arch-op-active {
+            background-color: #06b6d4 !important; /* cyan-500 */
+            color: #ffffff !important;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        /* General input style for all calculators */
+        .form-input-std {
+             @apply w-full p-3 bg-gray-900 border border-gray-600 text-white rounded-lg focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out placeholder-gray-400;
+        }
+        /* General button style for all calculators */
+        .btn-primary-std {
+            @apply w-full mt-6 bg-cyan-600 text-white p-3 rounded-lg font-semibold hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition duration-200 ease-in-out shadow-md hover:shadow-lg;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 p-4 sm:p-6 lg:p-8">
+
+    <!-- Main Dashboard Container -->
+    <div class="max-w-screen-xl mx-auto">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl sm:text-4xl font-bold text-cyan-400">CalcDash</h1>
+            <p class="text-gray-400 mt-2">A collection of specialized calculators.</p>
+        </header>
+
+        <!-- Grid for Calculator Widgets -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+
+            <!-- Widget 1: Ductulator -->
+            <div id="duct-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
+                <h2 class="text-2xl font-bold text-white mb-6 text-center">Ductulator</h2>
+                <div class="space-y-5">
+                    <div>
+                        <label for="duct-airflowCFM" class="block text-sm font-medium text-gray-300 mb-2">Airflow (CFM)</label>
+                        <input type="number" id="duct-airflowCFM" placeholder="e.g., 1000" class="form-input-std">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Sizing Method</label>
+                        <div class="flex space-x-4"><label class="inline-flex items-center"><input type="radio" name="duct-sizingMethod" value="velocity" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Velocity</span></label><label class="inline-flex items-center"><input type="radio" name="duct-sizingMethod" value="frictionLoss" checked class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Friction Loss</span></label></div>
+                    </div>
+                    <div id="duct-velocityInputContainer" class="hidden">
+                        <label for="duct-velocityFPM" class="block text-sm font-medium text-gray-300 mb-2">Velocity (FPM)</label>
+                        <input type="number" id="duct-velocityFPM" placeholder="e.g., 700" class="form-input-std">
+                    </div>
+                    <div id="duct-frictionLossInputContainer">
+                        <label for="duct-frictionLossWG" class="block text-sm font-medium text-gray-300 mb-2">Friction Loss (in. wg / 100 ft)</label>
+                        <input type="number" id="duct-frictionLossWG" placeholder="e.g., 0.1" step="0.01" class="form-input-std">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Duct Shape</label>
+                        <div class="flex space-x-4"><label class="inline-flex items-center"><input type="radio" name="duct-ductShape" value="round" checked class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Round</span></label><label class="inline-flex items-center"><input type="radio" name="duct-ductShape" value="rectangular" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Rectangular</span></label><label class="inline-flex items-center"><input type="radio" name="duct-ductShape" value="flex" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Flex</span></label></div>
+                    </div>
+                    <div id="duct-aspectRatioContainer" class="hidden">
+                        <label for="duct-aspectRatio" class="block text-sm font-medium text-gray-300 mb-2">Aspect Ratio (W/H)</label>
+                        <input type="number" id="duct-aspectRatio" placeholder="e.g., 2" value="1" step="0.1" class="form-input-std">
+                    </div>
+                </div>
+                <button id="duct-calculateBtn" class="btn-primary-std">Calculate</button>
+                <div id="duct-messageBox" class="mt-6 p-4 bg-red-900 bg-opacity-50 border border-red-500 text-red-300 rounded-lg hidden" role="alert"><p id="duct-messageText"></p></div>
+                <div class="mt-auto pt-5">
+                    <div class="p-5 bg-gray-900 rounded-xl">
+                        <h3 class="text-xl font-bold text-cyan-400 mb-4">Results</h3>
+                        <div class="space-y-3 text-gray-300">
+                            <div id="duct-roundResult" class="hidden"><p><span class="font-semibold">Round Duct:</span> <span id="duct-roundDiameter" class="text-white font-bold"></span> in</p></div>
+                            <div id="duct-rectangularResult" class="hidden"><p><span class="font-semibold">Rectangular Duct:</span> <span id="duct-rectWidth" class="text-white font-bold"></span>" W x <span id="duct-rectHeight" class="text-white font-bold"></span>" H</p></div>
+                            <div id="duct-flexResult" class="hidden"><p><span class="font-semibold">Flex Duct:</span> <span id="duct-flexDiameter" class="text-white font-bold"></span> in</p></div>
+                            <div id="duct-areaResult" class="hidden"><p><span class="font-semibold">Area:</span> <span id="duct-calculatedArea" class="text-white font-bold"></span> sq. in</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget 2: HVAC Conversion Calculator -->
+            <div id="hvac-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
+                 <h2 class="text-2xl font-bold text-white text-center mb-6">HVAC Conversion</h2>
+                 <div class="bg-gray-700 p-6 rounded-lg flex-grow flex flex-col justify-center">
+                    <h3 class="text-lg font-semibold text-cyan-400 mb-4">Btu/h to Kilowatts (kW)</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="hvac-btuh" class="block mb-2 text-sm font-medium text-gray-300">Btu/h</label>
+                            <input type="number" id="hvac-btuh" placeholder="Enter value in Btu/h" class="form-input-std">
+                        </div>
+                        <div>
+                            <label for="hvac-kw" class="block mb-2 text-sm font-medium text-gray-300">Kilowatts (kW)</label>
+                            <input type="number" id="hvac-kw" placeholder="Result in kW" readonly class="w-full p-3 bg-gray-600 border border-gray-500 text-white rounded-lg cursor-not-allowed">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Widget 3: Architectural Calculator -->
+            <div id="arch-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
+                <header class="text-center mb-6">
+                    <h2 class="text-2xl font-bold text-white">Architectural Calculator</h2>
+                </header>
+                <main class="flex-grow flex flex-col">
+                    <div class="space-y-4">
+                        <div class="relative">
+                            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM5 16H3v-2h2v2zm0-4H3v-2h2v2zm0-4H3V8h2v2zm4 4H7v-2h2v2zm0-4H7V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2z"/></svg></div>
+                            <input type="text" id="arch-input1" value="6' 7-3/4&quot;" class="w-full bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300" />
+                        </div>
+                        <div class="flex justify-center items-center space-x-2 bg-gray-700 p-2 rounded-xl">
+                            <button data-op="add" class="arch-op-button flex-1 p-2 rounded-lg transition duration-300 flex flex-col items-center text-xs bg-gray-600 text-gray-300 hover:bg-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="mt-1">Add</span></button>
+                            <button data-op="subtract" class="arch-op-button flex-1 p-2 rounded-lg transition duration-300 flex flex-col items-center text-xs bg-gray-600 text-gray-300 hover:bg-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg><span class="mt-1">Subtract</span></button>
+                            <button data-op="multiply" class="arch-op-button flex-1 p-2 rounded-lg transition duration-300 flex flex-col items-center text-xs bg-gray-600 text-gray-300 hover:bg-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg><span class="mt-1">Area</span></button>
+                            <button data-op="divide" class="arch-op-button flex-1 p-2 rounded-lg transition duration-300 flex flex-col items-center text-xs bg-gray-600 text-gray-300 hover:bg-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" x2="19" y1="12" y2="12"/><circle cx="12" cy="6" r="1"/><circle cx="12" cy="18" r="1"/></svg><span class="mt-1">Divide</span></button>
+                        </div>
+                        <div class="relative">
+                            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM5 16H3v-2h2v2zm0-4H3v-2h2v2zm0-4H3V8h2v2zm4 4H7v-2h2v2zm0-4H7V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2z"/></svg></div>
+                            <input type="text" id="arch-input2" value="9' 0-3/16&quot;" class="w-full bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300" />
+                        </div>
+                    </div>
+                    <div id="arch-error-message" class="mt-6 text-center text-red-400 bg-red-900/50 p-3 rounded-lg hidden"></div>
+                    <div class="mt-auto pt-6 border-t-2 border-gray-700">
+                        <h3 class="text-lg font-semibold text-gray-300 text-center mb-4">Result</h3>
+                        <div class="bg-gray-900 p-6 rounded-xl text-center min-h-[120px] flex flex-col justify-center">
+                            <div>
+                                <span id="arch-result1-label" class="text-sm text-gray-400 block">Architectural</span>
+                                <p id="arch-result1-display" class="text-3xl font-bold text-cyan-400 tracking-wider" style="font-variant-numeric: tabular-nums;">...</p>
+                            </div>
+                            <div id="arch-result2-container" class="mt-2">
+                                <span id="arch-result2-label" class="text-sm text-gray-400 block">Decimal Feet</span>
+                                <p id="arch-result2-display" class="text-xl text-gray-300" style="font-variant-numeric: tabular-nums;">...</p>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+
+            <!-- Widget 4: Clock Calculator -->
+            <div id="clock-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
+                 <div class="text-center">
+                    <h2 class="text-2xl font-bold text-white">Clock Calculator</h2>
+                    <p class="mt-2 text-gray-400">Calculate duration between two times</p>
+                </div>
+                <div class="flex-grow flex flex-col justify-center space-y-4 mt-6">
+                    <div>
+                        <label for="clock-startTime" class="block text-sm font-medium text-gray-300">Start Time</label>
+                        <input type="time" id="clock-startTime" class="form-input-std mt-1" required>
+                    </div>
+                    <div>
+                        <label for="clock-endTime" class="block text-sm font-medium text-gray-300">End Time</label>
+                        <input type="time" id="clock-endTime" class="form-input-std mt-1" required>
+                    </div>
+                    <div>
+                        <button id="clock-calculateBtn" class="btn-primary-std mt-2">Calculate Duration</button>
+                    </div>
+                    <div id="clock-result-container" class="pt-4 text-center hidden">
+                        <p class="text-lg text-gray-400">Duration:</p>
+                        <p id="clock-result" class="text-4xl font-bold text-cyan-400"></p>
+                    </div>
+                    <div id="clock-messageBox" class="hidden p-4 mt-4 text-sm text-red-300 bg-red-900/50 rounded-lg" role="alert">
+                        <span class="font-medium">Error:</span> Please enter both a start and end time.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            /**
+             * Initializes the Architectural Calculator.
+             */
+            function initializeArchCalc(container) {
+                if (!container) return;
+                const input1 = container.querySelector('#arch-input1');
+                const input2 = container.querySelector('#arch-input2');
+                const operationButtons = container.querySelectorAll('.arch-op-button');
+                const errorMessage = container.querySelector('#arch-error-message');
+                const result1Label = container.querySelector('#arch-result1-label');
+                const result1Display = container.querySelector('#arch-result1-display');
+                const result2Container = container.querySelector('#arch-result2-container');
+                const result2Label = container.querySelector('#arch-result2-label');
+                const result2Display = container.querySelector('#arch-result2-display');
+                let currentOperation = 'add';
+                const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
+                const parseDimension = (str) => {
+                    if (!str || typeof str !== 'string') return 0;
+                    let totalInches = 0;
+                    const input = str.trim().replace(/"/g, '');
+                    if (!input.includes("'") && !input.split(/[\s-]+/).some(p => !p.includes('/') && !isNaN(parseFloat(p)))) {
+                        const inchComponents = input.split(/[\s-]+/).filter(Boolean);
+                        let inches = 0;
+                        for (const comp of inchComponents) {
+                            if (comp.includes('/')) {
+                                const fracParts = comp.split('/');
+                                const num = parseFloat(fracParts[0]);
+                                const den = parseFloat(fracParts[1]);
+                                if (isNaN(num) || isNaN(den) || den === 0) return NaN;
+                                inches += num / den;
+                            }
+                        }
+                        return inches;
+                    }
+                    let feet = 0;
+                    let inchesPart = input;
+                    if (input.includes("'")) {
+                        const parts = input.split("'");
+                        feet = parseFloat(parts[0]);
+                        if (isNaN(feet)) return NaN;
+                        totalInches += feet * 12;
+                        inchesPart = parts[1] || '';
+                    }
+                    inchesPart = inchesPart.trim();
+                    if (!inchesPart) return totalInches;
+                    const inchComponents = inchesPart.split(/[\s-]+/).filter(Boolean);
+                    let inches = 0;
+                    for (const comp of inchComponents) {
+                        if (comp.includes('/')) {
+                            const fracParts = comp.split('/');
+                            const num = parseFloat(fracParts[0]);
+                            const den = parseFloat(fracParts[1]);
+                            if (isNaN(num) || isNaN(den) || den === 0) return NaN;
+                            inches += num / den;
+                        } else {
+                            const num = parseFloat(comp);
+                            if (isNaN(num)) return NaN;
+                            inches += num;
+                        }
+                    }
+                    return totalInches + inches;
+                };
+                const formatToArchitectural = (totalInches) => {
+                    const isNegative = totalInches < 0;
+                    if(isNegative) totalInches = -totalInches;
+                    if (isNaN(totalInches)) return "Invalid Input";
+                    if (totalInches === 0) return "0\"";
+                    const epsilon = 1e-9;
+                    totalInches += epsilon;
+                    const denominator = 16;
+                    let feet = Math.floor(totalInches / 12);
+                    let remainingInches = totalInches % 12;
+                    let wholeInches = Math.floor(remainingInches);
+                    const fractionalPart = remainingInches - wholeInches;
+                    let fractionStr = '';
+                    if (fractionalPart * denominator >= 1) {
+                        let numerator = Math.round(fractionalPart * denominator);
+                        if (numerator === denominator) {
+                            wholeInches++;
+                            numerator = 0;
+                        }
+                        if (numerator > 0) {
+                            const commonDivisor = gcd(numerator, denominator);
+                            fractionStr = `${numerator / commonDivisor}/${denominator / commonDivisor}`;
+                        }
+                    }
+                    if (wholeInches === 12) {
+                        feet++;
+                        wholeInches = 0;
+                    }
+                    const feetStr = feet > 0 ? `${feet}'` : '';
+                    const inchStr = wholeInches > 0 ? `${wholeInches}` : (feet > 0 && fractionStr ? '0' : '');
+                    let parts = [];
+                    if (feetStr) parts.push(feetStr);
+                    let inchPart = '';
+                    if(inchStr && fractionStr) {
+                        inchPart = `${inchStr}-${fractionStr}"`;
+                    } else if (inchStr) {
+                        inchPart = `${inchStr}"`;
+                    } else if (fractionStr) {
+                        inchPart = `${fractionStr}"`;
+                    }
+                    if(inchPart) parts.push(inchPart);
+                    if (parts.length === 0) return "0\"";
+                    return (isNegative ? '-' : '') + parts.join(' ');
+                };
+                function calculate() {
+                    const inches1 = parseDimension(input1.value);
+                    const inches2 = parseDimension(input2.value);
+                    if (isNaN(inches1) || isNaN(inches2)) {
+                        errorMessage.textContent = "Invalid format. Use formats like 12' 3-1/4\"";
+                        errorMessage.classList.remove('hidden');
+                        result1Display.textContent = '...';
+                        result2Display.textContent = '...';
+                        return;
+                    }
+                    errorMessage.classList.add('hidden');
+                    let res1 = '', res2 = '', label1 = '', label2 = '';
+                    result2Container.classList.remove('hidden');
+                    switch (currentOperation) {
+                        case 'add':
+                        case 'subtract':
+                            const totalInches = currentOperation === 'add' ? inches1 + inches2 : inches1 - inches2;
+                            res1 = formatToArchitectural(totalInches);
+                            res2 = `${(totalInches / 12).toFixed(4)} ft`;
+                            label1 = 'Architectural';
+                            label2 = 'Decimal Feet';
+                            break;
+                        case 'multiply':
+                            const sqInches = inches1 * inches2;
+                            const sqFeet = sqInches / 144;
+                            res1 = `${sqFeet.toFixed(4)} sq ft`;
+                            res2 = `${sqInches.toFixed(2)} sq in`;
+                            label1 = 'Area';
+                            label2 = ' ';
+                            break;
+                        case 'divide':
+                            if (inches2 === 0) {
+                                errorMessage.textContent = "Cannot divide by zero.";
+                                errorMessage.classList.remove('hidden');
+                                res1 = 'Error';
+                            } else {
+                                const ratio = inches1 / inches2;
+                                res1 = `${ratio.toFixed(4)}`;
+                            }
+                            label1 = 'Ratio';
+                            result2Container.classList.add('hidden');
+                            break;
+                    }
+                    result1Display.textContent = res1;
+                    result2Display.textContent = res2;
+                    result1Label.textContent = label1;
+                    result2Label.textContent = label2;
+                }
+                input1.addEventListener('input', calculate);
+                input2.addEventListener('input', calculate);
+                operationButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        currentOperation = button.dataset.op;
+                        operationButtons.forEach(btn => btn.classList.remove('arch-op-active'));
+                        button.classList.add('arch-op-active');
+                        calculate();
+                    });
+                });
+                container.querySelector('button[data-op="add"]').classList.add('arch-op-active');
+                calculate();
+            }
+
+            /**
+             * Initializes the HVAC Conversion Calculator.
+             */
+            function initializeHvacCalc(container) {
+                if (!container) return;
+                const btuhInput = container.querySelector('#hvac-btuh');
+                const kwInput = container.querySelector('#hvac-kw');
+                const BTU_PER_KW = 3412.14;
+
+                function convertBtuhToKw() {
+                    const btuhValue = parseFloat(btuhInput.value);
+                    if (!isNaN(btuhValue)) {
+                        const kwValue = btuhValue / BTU_PER_KW;
+                        kwInput.value = kwValue.toFixed(4);
+                    } else {
+                        kwInput.value = '';
+                    }
+                }
+                btuhInput.addEventListener('input', convertBtuhToKw);
+            }
+
+            /**
+             * Initializes the Ductulator Calculator.
+             */
+            function initializeDuctulator(container) {
+                if (!container) return;
+                const airflowCFMInput = container.querySelector('#duct-airflowCFM');
+                const sizingMethodRadios = container.querySelectorAll('input[name="duct-sizingMethod"]');
+                const velocityInputContainer = container.querySelector('#duct-velocityInputContainer');
+                const velocityFPMInput = container.querySelector('#duct-velocityFPM');
+                const frictionLossInputContainer = container.querySelector('#duct-frictionLossInputContainer');
+                const frictionLossWGInput = container.querySelector('#duct-frictionLossWG');
+                const ductShapeRadios = container.querySelectorAll('input[name="duct-ductShape"]');
+                const aspectRatioContainer = container.querySelector('#duct-aspectRatioContainer');
+                const aspectRatioInput = container.querySelector('#duct-aspectRatio');
+                const calculateBtn = container.querySelector('#duct-calculateBtn');
+                const roundResultDiv = container.querySelector('#duct-roundResult');
+                const rectangularResultDiv = container.querySelector('#duct-rectangularResult');
+                const flexResultDiv = container.querySelector('#duct-flexResult');
+                const roundDiameterSpan = container.querySelector('#duct-roundDiameter');
+                const rectWidthSpan = container.querySelector('#duct-rectWidth');
+                const rectHeightSpan = container.querySelector('#duct-rectHeight');
+                const flexDiameterSpan = container.querySelector('#duct-flexDiameter');
+                const areaResultDiv = container.querySelector('#duct-areaResult');
+                const calculatedAreaSpan = container.querySelector('#duct-calculatedArea');
+                const messageBox = container.querySelector('#duct-messageBox');
+                const messageText = container.querySelector('#duct-messageText');
+                const FLEX_DUCT_CORRECTION_FACTOR = 1.25;
+
+                function showMessage(message) {
+                    messageText.textContent = message;
+                    messageBox.classList.remove('hidden');
+                }
+                function hideMessage() {
+                    messageBox.classList.add('hidden');
+                    messageText.textContent = '';
+                }
+                function hideAllResults() {
+                    roundResultDiv.classList.add('hidden');
+                    rectangularResultDiv.classList.add('hidden');
+                    flexResultDiv.classList.add('hidden');
+                    areaResultDiv.classList.add('hidden');
+                }
+
+                sizingMethodRadios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        if (radio.value === 'velocity') {
+                            velocityInputContainer.classList.remove('hidden');
+                            frictionLossInputContainer.classList.add('hidden');
+                        } else {
+                            velocityInputContainer.classList.add('hidden');
+                            frictionLossInputContainer.classList.remove('hidden');
+                        }
+                        hideAllResults();
+                        hideMessage();
+                    });
+                });
+
+                ductShapeRadios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        if (radio.value === 'rectangular') {
+                            aspectRatioContainer.classList.remove('hidden');
+                        } else {
+                            aspectRatioContainer.classList.add('hidden');
+                        }
+                        hideAllResults();
+                        hideMessage();
+                    });
+                });
+
+                calculateBtn.addEventListener('click', () => {
+                    hideAllResults();
+                    hideMessage();
+                    const airflowCFM = parseFloat(airflowCFMInput.value);
+                    const selectedSizingMethod = container.querySelector('input[name="duct-sizingMethod"]:checked').value;
+                    const selectedShape = container.querySelector('input[name="duct-ductShape"]:checked').value;
+                    const aspectRatio = parseFloat(aspectRatioInput.value);
+                    let areaSqIn, diameterEquivalent;
+
+                    if (isNaN(airflowCFM) || airflowCFM <= 0) {
+                        showMessage('Please enter a valid positive number for Airflow (CFM).');
+                        return;
+                    }
+
+                    if (selectedSizingMethod === 'velocity') {
+                        const velocityFPM = parseFloat(velocityFPMInput.value);
+                        if (isNaN(velocityFPM) || velocityFPM <= 0) {
+                            showMessage('Please enter a valid positive number for Velocity (FPM).');
+                            return;
+                        }
+                        areaSqIn = (airflowCFM / velocityFPM) * 144;
+                        diameterEquivalent = 2 * Math.sqrt(areaSqIn / Math.PI);
+                    } else {
+                        const frictionLossWG = parseFloat(frictionLossWGInput.value);
+                        if (isNaN(frictionLossWG) || frictionLossWG <= 0) {
+                            showMessage('Please enter a valid positive number for Friction Loss (in. wg / 100 ft).');
+                            return;
+                        }
+                        diameterEquivalent = Math.pow((0.109136 * Math.pow(airflowCFM, 1.9)) / frictionLossWG, 1 / 5.02);
+                        areaSqIn = Math.PI * Math.pow(diameterEquivalent / 2, 2);
+                    }
+
+                    if (selectedShape === 'rectangular' && (isNaN(aspectRatio) || aspectRatio <= 0)) {
+                        showMessage('Please enter a valid positive number for Aspect Ratio.');
+                        return;
+                    }
+
+                    calculatedAreaSpan.textContent = areaSqIn.toFixed(2);
+                    areaResultDiv.classList.remove('hidden');
+
+                    if (selectedShape === 'round') {
+                        roundDiameterSpan.textContent = diameterEquivalent.toFixed(2);
+                        roundResultDiv.classList.remove('hidden');
+                    } else if (selectedShape === 'rectangular') {
+                        const height = Math.sqrt(areaSqIn / aspectRatio);
+                        const width = aspectRatio * height;
+                        rectWidthSpan.textContent = width.toFixed(2);
+                        rectHeightSpan.textContent = height.toFixed(2);
+                        rectangularResultDiv.classList.remove('hidden');
+                    } else if (selectedShape === 'flex') {
+                        const flexDiameter = diameterEquivalent * FLEX_DUCT_CORRECTION_FACTOR;
+                        flexDiameterSpan.textContent = flexDiameter.toFixed(2);
+                        flexResultDiv.classList.remove('hidden');
+                    }
+                });
+                
+                // Initial state
+                container.querySelector('input[name="duct-sizingMethod"][value="frictionLoss"]').checked = true;
+                velocityInputContainer.classList.add('hidden');
+                frictionLossInputContainer.classList.remove('hidden');
+                if (container.querySelector('input[name="duct-ductShape"]:checked').value !== 'rectangular') {
+                    aspectRatioContainer.classList.add('hidden');
+                }
+            }
+            
+            /**
+             * Initializes the Clock Calculator.
+             */
+            function initializeClockCalc(container) {
+                if (!container) return;
+                const startTimeInput = container.querySelector('#clock-startTime');
+                const endTimeInput = container.querySelector('#clock-endTime');
+                const calculateBtn = container.querySelector('#clock-calculateBtn');
+                const resultContainer = container.querySelector('#clock-result-container');
+                const resultDisplay = container.querySelector('#clock-result');
+                const messageBox = container.querySelector('#clock-messageBox');
+
+                function calculateTimeDifference() {
+                    const startTime = startTimeInput.value;
+                    const endTime = endTimeInput.value;
+
+                    if (!startTime || !endTime) {
+                        resultContainer.classList.add('hidden');
+                        messageBox.classList.remove('hidden');
+                        return;
+                    }
+                    
+                    messageBox.classList.add('hidden');
+                    const startDate = new Date(`1970-01-01T${startTime}:00`);
+                    const endDate = new Date(`1970-01-01T${endTime}:00`);
+                    let diffInMillis = endDate.getTime() - startDate.getTime();
+
+                    if (diffInMillis < 0) {
+                        diffInMillis += 24 * 60 * 60 * 1000;
+                    }
+
+                    const diffInHours = diffInMillis / 3600000;
+                    resultDisplay.textContent = `${diffInHours.toFixed(2)} hours`;
+                    resultContainer.classList.remove('hidden');
+                }
+                calculateBtn.addEventListener('click', calculateTimeDifference);
+            }
+
+            // Initialize all calculators on the page
+            initializeArchCalc(document.getElementById('arch-calc-widget'));
+            initializeHvacCalc(document.getElementById('hvac-calc-widget'));
+            initializeDuctulator(document.getElementById('duct-calc-widget'));
+            initializeClockCalc(document.getElementById('clock-calc-widget'));
+        });
+    </script>
+
+</body>
+</html>
