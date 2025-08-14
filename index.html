@@ -84,17 +84,20 @@
             <div id="hvac-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
                  <h2 class="text-2xl font-bold text-white text-center mb-6">HVAC Conversion</h2>
                  <div class="bg-gray-800 p-6 rounded-lg flex-grow flex flex-col justify-center">
-                    <h3 class="text-lg font-semibold text-cyan-400 mb-4">Btu/h to Kilowatts (kW)</h3>
-                    <div class="space-y-4">
+                    <h3 id="hvac-title" class="text-lg font-semibold text-cyan-400 mb-4 text-center">Btu/h to Kilowatts (kW)</h3>
+                    <div class="space-y-2">
                         <div>
-                            <label for="hvac-btuh" class="block mb-2 text-sm font-medium text-gray-300">Btu/h</label>
-                            <input type="number" id="hvac-btuh" placeholder="Enter value in Btu/h" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+                            <label id="hvac-label-top" for="hvac-input-top" class="block mb-2 text-sm font-medium text-gray-300">Btu/h</label>
+                            <input type="number" id="hvac-input-top" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+                        </div>
+                        <div class="flex justify-center py-2">
+                            <button id="hvac-swap-btn" class="p-2 rounded-full bg-gray-600 hover:bg-cyan-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6V8.4A2.4 2.4 0 0 1 5.4 6h16.2"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v4.2a2.4 2.4 0 0 1-2.4 2.4H2.4"/></svg>
+                            </button>
                         </div>
                         <div>
-                            <label for="hvac-kw" class="block mb-2 text-sm font-medium text-gray-300">Kilowatts (kW)</label>
-                            <div id="hvac-kw" class="w-full p-3 bg-gray-900 text-white rounded-lg">
-                                <span id="hvac-kw-result" class="text-white font-bold">&nbsp;</span>
-                            </div>
+                            <label id="hvac-label-bottom" for="hvac-output-bottom" class="block mb-2 text-sm font-medium text-gray-300">Kilowatts (kW)</label>
+                            <input type="number" id="hvac-output-bottom" class="w-full p-3 bg-gray-900 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg cursor-not-allowed" readonly>
                         </div>
                     </div>
                 </div>
@@ -358,21 +361,53 @@
              */
             function initializeHvacCalc(container) {
                 if (!container) return;
-                const btuhInput = container.querySelector('#hvac-btuh');
-                const kwResultSpan = container.querySelector('#hvac-kw-result');
+                const title = container.querySelector('#hvac-title');
+                const topInput = container.querySelector('#hvac-input-top');
+                const topLabel = container.querySelector('#hvac-label-top');
+                const bottomOutput = container.querySelector('#hvac-output-bottom');
+                const bottomLabel = container.querySelector('#hvac-label-bottom');
+                const swapBtn = container.querySelector('#hvac-swap-btn');
+                
                 const BTU_PER_KW = 3412.14;
+                let isKwToBtu = false;
 
-                function convertBtuhToKw() {
-                    const btuhValue = parseFloat(btuhInput.value);
-                    if (!isNaN(btuhValue) && btuhInput.value.trim() !== '') {
-                        const kwValue = btuhValue / BTU_PER_KW;
-                        kwResultSpan.textContent = kwValue.toFixed(4);
+                function calculate() {
+                    const sourceValue = parseFloat(topInput.value);
+                    if (!isNaN(sourceValue) && topInput.value.trim() !== '') {
+                        if (isKwToBtu) {
+                            bottomOutput.value = (sourceValue * BTU_PER_KW).toFixed(2);
+                        } else {
+                            bottomOutput.value = (sourceValue / BTU_PER_KW).toFixed(4);
+                        }
                     } else {
-                        kwResultSpan.innerHTML = '&nbsp;';
+                        bottomOutput.value = '';
                     }
                 }
-                btuhInput.addEventListener('input', convertBtuhToKw);
-                convertBtuhToKw(); // Initial call
+
+                function updateUI() {
+                    if (isKwToBtu) {
+                        title.textContent = 'Kilowatts (kW) to Btu/h';
+                        topLabel.textContent = 'Kilowatts (kW)';
+                        topInput.placeholder = 'Enter value in kW';
+                        bottomLabel.textContent = 'Btu/h';
+                    } else {
+                        title.textContent = 'Btu/h to Kilowatts (kW)';
+                        topLabel.textContent = 'Btu/h';
+                        topInput.placeholder = 'Enter value in Btu/h';
+                        bottomLabel.textContent = 'Kilowatts (kW)';
+                    }
+                }
+
+                swapBtn.addEventListener('click', () => {
+                    isKwToBtu = !isKwToBtu;
+                    topInput.value = bottomOutput.value;
+                    updateUI();
+                    calculate();
+                });
+
+                topInput.addEventListener('input', calculate);
+
+                updateUI(); // Initial setup
             }
 
             /**
