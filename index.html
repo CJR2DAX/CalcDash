@@ -18,13 +18,9 @@
             color: #ffffff !important;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
-        /* General input style for all calculators */
-        .form-input-std {
-             @apply w-full p-3 bg-gray-900 border border-gray-600 text-white rounded-lg focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out placeholder-gray-400;
-        }
-        /* General button style for all calculators */
-        .btn-primary-std {
-            @apply w-full mt-6 bg-cyan-600 text-white p-3 rounded-lg font-semibold hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition duration-200 ease-in-out shadow-md hover:shadow-lg;
+        /* Style to make the clock icon in time inputs white */
+        input[type="time"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
         }
     </style>
 </head>
@@ -46,7 +42,7 @@
                 <div class="space-y-5">
                     <div>
                         <label for="duct-airflowCFM" class="block text-sm font-medium text-gray-300 mb-2">Airflow (CFM)</label>
-                        <input type="number" id="duct-airflowCFM" placeholder="e.g., 1000" class="w-full p-3 bg-gray-900 border border-gray-600 text-white rounded-lg focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out placeholder-gray-400">
+                        <input type="number" id="duct-airflowCFM" placeholder="e.g., 1000" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Sizing Method</label>
@@ -54,11 +50,11 @@
                     </div>
                     <div id="duct-velocityInputContainer" class="hidden">
                         <label for="duct-velocityFPM" class="block text-sm font-medium text-gray-300 mb-2">Velocity (FPM)</label>
-                        <input type="number" id="duct-velocityFPM" placeholder="e.g., 700" class="w-full p-3 bg-gray-900 border border-gray-600 text-white rounded-lg focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out placeholder-gray-400">
+                        <input type="number" id="duct-velocityFPM" placeholder="e.g., 700" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
                     </div>
                     <div id="duct-frictionLossInputContainer">
                         <label for="duct-frictionLossWG" class="block text-sm font-medium text-gray-300 mb-2">Friction Loss (in. wg / 100 ft)</label>
-                        <input type="number" id="duct-frictionLossWG" placeholder="e.g., 0.1" step="0.01" class="w-full p-3 bg-gray-900 border border-gray-600 text-white rounded-lg focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out placeholder-gray-400">
+                        <input type="number" id="duct-frictionLossWG" placeholder="e.g., 0.1" step="0.01" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">Duct Shape</label>
@@ -66,10 +62,10 @@
                     </div>
                     <div id="duct-aspectRatioContainer" class="hidden">
                         <label for="duct-aspectRatio" class="block text-sm font-medium text-gray-300 mb-2">Aspect Ratio (W/H)</label>
-                        <input type="number" id="duct-aspectRatio" placeholder="e.g., 2" value="1" step="0.1" class="w-full p-3 bg-gray-900 border border-gray-600 text-white rounded-lg focus:ring-cyan-500 focus:border-cyan-500 transition duration-200 ease-in-out placeholder-gray-400">
+                        <input type="number" id="duct-aspectRatio" placeholder="e.g., 2" value="1" step="0.1" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
                     </div>
                 </div>
-                <button id="duct-calculateBtn" class="btn-primary-std">Calculate</button>
+                <button id="duct-calculateBtn" class="w-full mt-6 bg-cyan-600 text-white p-3 rounded-lg font-semibold hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition duration-200 ease-in-out shadow-md hover:shadow-lg">Calculate</button>
                 <div id="duct-messageBox" class="mt-6 p-4 bg-red-900 bg-opacity-50 border border-red-500 text-red-300 rounded-lg hidden" role="alert"><p id="duct-messageText"></p></div>
                 <div class="mt-auto pt-5">
                     <div class="p-5 bg-gray-900 rounded-xl">
@@ -87,16 +83,18 @@
             <!-- Widget 2: HVAC Conversion Calculator -->
             <div id="hvac-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
                  <h2 class="text-2xl font-bold text-white text-center mb-6">HVAC Conversion</h2>
-                 <div class="bg-gray-700 p-6 rounded-lg flex-grow flex flex-col justify-center">
+                 <div class="bg-gray-800 p-6 rounded-lg flex-grow flex flex-col justify-center">
                     <h3 class="text-lg font-semibold text-cyan-400 mb-4">Btu/h to Kilowatts (kW)</h3>
                     <div class="space-y-4">
                         <div>
                             <label for="hvac-btuh" class="block mb-2 text-sm font-medium text-gray-300">Btu/h</label>
-                            <input type="number" id="hvac-btuh" placeholder="Enter value in Btu/h" class="form-input-std">
+                            <input type="number" id="hvac-btuh" placeholder="Enter value in Btu/h" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
                         </div>
                         <div>
                             <label for="hvac-kw" class="block mb-2 text-sm font-medium text-gray-300">Kilowatts (kW)</label>
-                            <input type="number" id="hvac-kw" placeholder="Result in kW" readonly class="w-full p-3 bg-gray-600 border border-gray-500 text-white rounded-lg cursor-not-allowed">
+                            <div id="hvac-kw" class="w-full p-3 bg-gray-900 text-white rounded-lg">
+                                <span id="hvac-kw-result" class="text-white font-bold">&nbsp;</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -111,7 +109,7 @@
                     <div class="space-y-4">
                         <div class="relative">
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM5 16H3v-2h2v2zm0-4H3v-2h2v2zm0-4H3V8h2v2zm4 4H7v-2h2v2zm0-4H7V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2z"/></svg></div>
-                            <input type="text" id="arch-input1" value="6' 7-3/4&quot;" class="w-full bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300" />
+                            <input type="text" id="arch-input1" placeholder="e.g., 6' 7-3/4&quot;" class="w-full bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300" />
                         </div>
                         <div class="flex justify-center items-center space-x-2 bg-gray-700 p-2 rounded-xl">
                             <button data-op="add" class="arch-op-button flex-1 p-2 rounded-lg transition duration-300 flex flex-col items-center text-xs bg-gray-600 text-gray-300 hover:bg-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg><span class="mt-1">Add</span></button>
@@ -121,20 +119,18 @@
                         </div>
                         <div class="relative">
                             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM5 16H3v-2h2v2zm0-4H3v-2h2v2zm0-4H3V8h2v2zm4 4H7v-2h2v2zm0-4H7V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2zm4 4h-2v-2h2v2zm0-4h-2V8h2v2z"/></svg></div>
-                            <input type="text" id="arch-input2" value="9' 0-3/16&quot;" class="w-full bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300" />
+                            <input type="text" id="arch-input2" placeholder="e.g., 9' 0-3/16&quot;" class="w-full bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300" />
                         </div>
                     </div>
                     <div id="arch-error-message" class="mt-6 text-center text-red-400 bg-red-900/50 p-3 rounded-lg hidden"></div>
-                    <div class="mt-auto pt-6 border-t-2 border-gray-700">
-                        <h3 class="text-lg font-semibold text-gray-300 text-center mb-4">Result</h3>
-                        <div class="bg-gray-900 p-6 rounded-xl text-center min-h-[120px] flex flex-col justify-center">
-                            <div>
-                                <span id="arch-result1-label" class="text-sm text-gray-400 block">Architectural</span>
-                                <p id="arch-result1-display" class="text-3xl font-bold text-cyan-400 tracking-wider" style="font-variant-numeric: tabular-nums;">...</p>
-                            </div>
-                            <div id="arch-result2-container" class="mt-2">
-                                <span id="arch-result2-label" class="text-sm text-gray-400 block">Decimal Feet</span>
-                                <p id="arch-result2-display" class="text-xl text-gray-300" style="font-variant-numeric: tabular-nums;">...</p>
+                    <div class="mt-auto pt-6">
+                        <div class="bg-gray-900 p-5 rounded-xl">
+                             <h3 class="text-xl font-bold text-cyan-400 mb-4">Result</h3>
+                            <div class="space-y-3 text-gray-300">
+                                <p><span id="arch-result1-label" class="font-semibold">Architectural</span>: <span id="arch-result1-display" class="text-white font-bold">...</span></p>
+                                <div id="arch-result2-container">
+                                     <p><span id="arch-result2-label" class="font-semibold">Decimal Feet</span>: <span id="arch-result2-display" class="text-white font-bold">...</span></p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -147,24 +143,28 @@
                     <h2 class="text-2xl font-bold text-white">Clock Calculator</h2>
                     <p class="mt-2 text-gray-400">Calculate duration between two times</p>
                 </div>
-                <div class="flex-grow flex flex-col justify-center space-y-4 mt-6">
+                <div class="space-y-4 mt-6">
                     <div>
                         <label for="clock-startTime" class="block text-sm font-medium text-gray-300">Start Time</label>
-                        <input type="time" id="clock-startTime" class="form-input-std mt-1" required>
+                        <input type="time" id="clock-startTime" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300 mt-1" required>
                     </div>
                     <div>
                         <label for="clock-endTime" class="block text-sm font-medium text-gray-300">End Time</label>
-                        <input type="time" id="clock-endTime" class="form-input-std mt-1" required>
+                        <input type="time" id="clock-endTime" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300 mt-1" required>
                     </div>
                     <div>
-                        <button id="clock-calculateBtn" class="btn-primary-std mt-2">Calculate Duration</button>
+                        <button id="clock-calculateBtn" class="w-full mt-2 bg-cyan-600 text-white p-3 rounded-lg font-semibold hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition duration-200 ease-in-out shadow-md hover:shadow-lg">Calculate Duration</button>
                     </div>
-                    <div id="clock-result-container" class="pt-4 text-center hidden">
-                        <p class="text-lg text-gray-400">Duration:</p>
-                        <p id="clock-result" class="text-4xl font-bold text-cyan-400"></p>
-                    </div>
-                    <div id="clock-messageBox" class="hidden p-4 mt-4 text-sm text-red-300 bg-red-900/50 rounded-lg" role="alert">
-                        <span class="font-medium">Error:</span> Please enter both a start and end time.
+                </div>
+                <div id="clock-messageBox" class="hidden p-4 mt-4 text-sm text-red-300 bg-red-900/50 rounded-lg" role="alert">
+                    <span class="font-medium">Error:</span> Please enter both a start and end time.
+                </div>
+                <div id="clock-result-container" class="mt-auto pt-5 hidden">
+                    <div class="p-5 bg-gray-900 rounded-xl">
+                        <h3 class="text-xl font-bold text-cyan-400 mb-4">Result</h3>
+                        <div class="space-y-3 text-gray-300">
+                             <p><span class="font-semibold">Duration:</span> <span id="clock-result" class="text-white font-bold"></span> hours</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -192,7 +192,7 @@
                 let currentOperation = 'add';
                 const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
                 const parseDimension = (str) => {
-                    if (!str || typeof str !== 'string') return 0;
+                    if (!str || typeof str !== 'string' || str.trim() === '') return 0;
                     let totalInches = 0;
                     const input = str.trim().replace(/"/g, '');
                     if (!input.includes("'") && !input.split(/[\s-]+/).some(p => !p.includes('/') && !isNaN(parseFloat(p)))) {
@@ -282,8 +282,19 @@
                     return (isNegative ? '-' : '') + parts.join(' ');
                 };
                 function calculate() {
-                    const inches1 = parseDimension(input1.value);
-                    const inches2 = parseDimension(input2.value);
+                    const val1 = input1.value;
+                    const val2 = input2.value;
+
+                    if (!val1 && !val2) {
+                        result1Display.textContent = '...';
+                        result2Display.textContent = '...';
+                        errorMessage.classList.add('hidden');
+                        return;
+                    }
+
+                    const inches1 = parseDimension(val1);
+                    const inches2 = parseDimension(val2);
+
                     if (isNaN(inches1) || isNaN(inches2)) {
                         errorMessage.textContent = "Invalid format. Use formats like 12' 3-1/4\"";
                         errorMessage.classList.remove('hidden');
@@ -292,7 +303,8 @@
                         return;
                     }
                     errorMessage.classList.add('hidden');
-                    let res1 = '', res2 = '', label1 = '', label2 = '';
+                    let res1 = '', res2 = '';
+                    result1Label.parentElement.classList.remove('hidden');
                     result2Container.classList.remove('hidden');
                     switch (currentOperation) {
                         case 'add':
@@ -300,16 +312,16 @@
                             const totalInches = currentOperation === 'add' ? inches1 + inches2 : inches1 - inches2;
                             res1 = formatToArchitectural(totalInches);
                             res2 = `${(totalInches / 12).toFixed(4)} ft`;
-                            label1 = 'Architectural';
-                            label2 = 'Decimal Feet';
+                            result1Label.textContent = 'Architectural';
+                            result2Label.textContent = 'Decimal Feet';
                             break;
                         case 'multiply':
                             const sqInches = inches1 * inches2;
                             const sqFeet = sqInches / 144;
                             res1 = `${sqFeet.toFixed(4)} sq ft`;
                             res2 = `${sqInches.toFixed(2)} sq in`;
-                            label1 = 'Area';
-                            label2 = ' ';
+                            result1Label.textContent = 'Area (sq ft)';
+                            result2Label.textContent = 'Area (sq in)';
                             break;
                         case 'divide':
                             if (inches2 === 0) {
@@ -320,14 +332,12 @@
                                 const ratio = inches1 / inches2;
                                 res1 = `${ratio.toFixed(4)}`;
                             }
-                            label1 = 'Ratio';
+                            result1Label.textContent = 'Ratio';
                             result2Container.classList.add('hidden');
                             break;
                     }
                     result1Display.textContent = res1;
                     result2Display.textContent = res2;
-                    result1Label.textContent = label1;
-                    result2Label.textContent = label2;
                 }
                 input1.addEventListener('input', calculate);
                 input2.addEventListener('input', calculate);
@@ -349,19 +359,20 @@
             function initializeHvacCalc(container) {
                 if (!container) return;
                 const btuhInput = container.querySelector('#hvac-btuh');
-                const kwInput = container.querySelector('#hvac-kw');
+                const kwResultSpan = container.querySelector('#hvac-kw-result');
                 const BTU_PER_KW = 3412.14;
 
                 function convertBtuhToKw() {
                     const btuhValue = parseFloat(btuhInput.value);
-                    if (!isNaN(btuhValue)) {
+                    if (!isNaN(btuhValue) && btuhInput.value.trim() !== '') {
                         const kwValue = btuhValue / BTU_PER_KW;
-                        kwInput.value = kwValue.toFixed(4);
+                        kwResultSpan.textContent = kwValue.toFixed(4);
                     } else {
-                        kwInput.value = '';
+                        kwResultSpan.innerHTML = '&nbsp;';
                     }
                 }
                 btuhInput.addEventListener('input', convertBtuhToKw);
+                convertBtuhToKw(); // Initial call
             }
 
             /**
@@ -530,7 +541,7 @@
                     }
 
                     const diffInHours = diffInMillis / 3600000;
-                    resultDisplay.textContent = `${diffInHours.toFixed(2)} hours`;
+                    resultDisplay.textContent = diffInHours.toFixed(2);
                     resultContainer.classList.remove('hidden');
                 }
                 calculateBtn.addEventListener('click', calculateTimeDifference);
@@ -546,4 +557,3 @@
 
 </body>
 </html>
-
