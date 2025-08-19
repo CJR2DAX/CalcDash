@@ -1,0 +1,449 @@
+document.addEventListener('DOMContentLoaded', () => {
+    
+    /**
+     * Main initialization function.
+     */
+    function init() {
+        initializeArchCalc(document.getElementById('arch-calc-widget'));
+        initializeHvacCalc(document.getElementById('hvac-calc-widget'));
+        initializeDuctulator(document.getElementById('duct-calc-widget'));
+        initializeClockCalc(document.getElementById('clock-calc-widget'));
+        initializeConcreteCalc(document.getElementById('concrete-calc-widget'));
+    }
+
+    /**
+     * Initializes the Architectural Calculator.
+     */
+    function initializeArchCalc(container) {
+        if (!container) return;
+        const input1 = container.querySelector('#arch-input1');
+        const input2 = container.querySelector('#arch-input2');
+        const operationButtons = container.querySelectorAll('.arch-op-button');
+        const errorMessage = container.querySelector('#arch-error-message');
+        const result1Label = container.querySelector('#arch-result1-label');
+        const result1Display = container.querySelector('#arch-result1-display');
+        const result2Container = container.querySelector('#arch-result2-container');
+        const result2Label = container.querySelector('#arch-result2-label');
+        const result2Display = container.querySelector('#arch-result2-display');
+        let currentOperation = 'add';
+        const gcd = (a, b) => (b === 0 ? a : gcd(b, a % b));
+        const parseDimension = (str) => {
+            if (!str || typeof str !== 'string' || str.trim() === '') return 0;
+            let totalInches = 0;
+            const input = str.trim().replace(/"/g, '');
+            if (!input.includes("'") && !input.split(/[\s-]+/).some(p => !p.includes('/') && !isNaN(parseFloat(p)))) {
+                const inchComponents = input.split(/[\s-]+/).filter(Boolean);
+                let inches = 0;
+                for (const comp of inchComponents) {
+                    if (comp.includes('/')) {
+                        const fracParts = comp.split('/');
+                        const num = parseFloat(fracParts[0]);
+                        const den = parseFloat(fracParts[1]);
+                        if (isNaN(num) || isNaN(den) || den === 0) return NaN;
+                        inches += num / den;
+                    }
+                }
+                return inches;
+            }
+            let feet = 0;
+            let inchesPart = input;
+            if (input.includes("'")) {
+                const parts = input.split("'");
+                feet = parseFloat(parts[0]);
+                if (isNaN(feet)) return NaN;
+                totalInches += feet * 12;
+                inchesPart = parts[1] || '';
+            }
+            inchesPart = inchesPart.trim();
+            if (!inchesPart) return totalInches;
+            const inchComponents = inchesPart.split(/[\s-]+/).filter(Boolean);
+            let inches = 0;
+            for (const comp of inchComponents) {
+                if (comp.includes('/')) {
+                    const fracParts = comp.split('/');
+                    const num = parseFloat(fracParts[0]);
+                    const den = parseFloat(fracParts[1]);
+                    if (isNaN(num) || isNaN(den) || den === 0) return NaN;
+                    inches += num / den;
+                } else {
+                    const num = parseFloat(comp);
+                    if (isNaN(num)) return NaN;
+                    inches += num;
+                }
+            }
+            return totalInches + inches;
+        };
+        const formatToArchitectural = (totalInches) => {
+            const isNegative = totalInches < 0;
+            if(isNegative) totalInches = -totalInches;
+            if (isNaN(totalInches)) return "Invalid Input";
+            if (totalInches === 0) return "0\"";
+            const epsilon = 1e-9;
+            totalInches += epsilon;
+            const denominator = 16;
+            let feet = Math.floor(totalInches / 12);
+            let remainingInches = totalInches % 12;
+            let wholeInches = Math.floor(remainingInches);
+            const fractionalPart = remainingInches - wholeInches;
+            let fractionStr = '';
+            if (fractionalPart * denominator >= 1) {
+                let numerator = Math.round(fractionalPart * denominator);
+                if (numerator === denominator) {
+                    wholeInches++;
+                    numerator = 0;
+                }
+                if (numerator > 0) {
+                    const commonDivisor = gcd(numerator, denominator);
+                    fractionStr = `${numerator / commonDivisor}/${denominator / commonDivisor}`;
+                }
+            }
+            if (wholeInches === 12) {
+                feet++;
+                wholeInches = 0;
+            }
+            const feetStr = feet > 0 ? `${feet}'` : '';
+            const inchStr = wholeInches > 0 ? `${wholeInches}` : (feet > 0 && fractionStr ? '0' : '');
+            let parts = [];
+            if (feetStr) parts.push(feetStr);
+            let inchPart = '';
+            if(inchStr && fractionStr) {
+                inchPart = `${inchStr}-${fractionStr}"`;
+            } else if (inchStr) {
+                inchPart = `${inchStr}"`;
+            } else if (fractionStr) {
+                inchPart = `${fractionStr}"`;
+            }
+            if(inchPart) parts.push(inchPart);
+            if (parts.length === 0) return "0\"";
+            return (isNegative ? '-' : '') + parts.join(' ');
+        };
+        function calculate() {
+            const val1 = input1.value;
+            const val2 = input2.value;
+
+            if (!val1 && !val2) {
+                result1Display.textContent = '...';
+                result2Display.textContent = '...';
+                errorMessage.classList.add('hidden');
+                return;
+            }
+
+            const inches1 = parseDimension(val1);
+            const inches2 = parseDimension(val2);
+
+            if (isNaN(inches1) || isNaN(inches2)) {
+                errorMessage.textContent = "Invalid format. Use formats like 12' 3-1/4\"";
+                errorMessage.classList.remove('hidden');
+                result1Display.textContent = '...';
+                result2Display.textContent = '...';
+                return;
+            }
+            errorMessage.classList.add('hidden');
+            let res1 = '', res2 = '';
+            result1Label.parentElement.classList.remove('hidden');
+            result2Container.classList.remove('hidden');
+            switch (currentOperation) {
+                case 'add':
+                case 'subtract':
+                    const totalInches = currentOperation === 'add' ? inches1 + inches2 : inches1 - inches2;
+                    res1 = formatToArchitectural(totalInches);
+                    res2 = `${(totalInches / 12).toFixed(4)} ft`;
+                    result1Label.textContent = 'Architectural';
+                    result2Label.textContent = 'Decimal Feet';
+                    break;
+                case 'multiply':
+                    const sqInches = inches1 * inches2;
+                    const sqFeet = sqInches / 144;
+                    res1 = `${sqFeet.toFixed(4)} sq ft`;
+                    res2 = `${sqInches.toFixed(2)} sq in`;
+                    result1Label.textContent = 'Area (sq ft)';
+                    result2Label.textContent = 'Area (sq in)';
+                    break;
+                case 'divide':
+                    if (inches2 === 0) {
+                        errorMessage.textContent = "Cannot divide by zero.";
+                        errorMessage.classList.remove('hidden');
+                        res1 = 'Error';
+                    } else {
+                        const ratio = inches1 / inches2;
+                        res1 = `${ratio.toFixed(4)}`;
+                    }
+                    result1Label.textContent = 'Ratio';
+                    result2Container.classList.add('hidden');
+                    break;
+            }
+            result1Display.textContent = res1;
+            result2Display.textContent = res2;
+        }
+        input1.addEventListener('input', calculate);
+        input2.addEventListener('input', calculate);
+        operationButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentOperation = button.dataset.op;
+                operationButtons.forEach(btn => btn.classList.remove('arch-op-active'));
+                button.classList.add('arch-op-active');
+                calculate();
+            });
+        });
+        container.querySelector('button[data-op="add"]').classList.add('arch-op-active');
+        calculate();
+    }
+
+    /**
+     * Initializes the HVAC Conversion Calculator.
+     */
+    function initializeHvacCalc(container) {
+        if (!container) return;
+        const title = container.querySelector('#hvac-title');
+        const topInput = container.querySelector('#hvac-input-top');
+        const topLabel = container.querySelector('#hvac-label-top');
+        const bottomOutput = container.querySelector('#hvac-output-bottom');
+        const bottomLabel = container.querySelector('#hvac-label-bottom');
+        const swapBtn = container.querySelector('#hvac-swap-btn');
+        
+        const BTU_PER_KW = 3412.14;
+        let isKwToBtu = false;
+
+        function calculate() {
+            const sourceValue = parseFloat(topInput.value);
+            if (!isNaN(sourceValue) && topInput.value.trim() !== '') {
+                if (isKwToBtu) {
+                    bottomOutput.value = (sourceValue * BTU_PER_KW).toFixed(2);
+                } else {
+                    bottomOutput.value = (sourceValue / BTU_PER_KW).toFixed(4);
+                }
+            } else {
+                bottomOutput.value = '';
+            }
+        }
+
+        function updateUI() {
+            if (isKwToBtu) {
+                title.textContent = 'Kilowatts (kW) to Btu/h';
+                topLabel.textContent = 'Kilowatts (kW)';
+                topInput.placeholder = 'Enter value in kW';
+                bottomLabel.textContent = 'Btu/h';
+            } else {
+                title.textContent = 'Btu/h to Kilowatts (kW)';
+                topLabel.textContent = 'Btu/h';
+                topInput.placeholder = 'Enter value in Btu/h';
+                bottomLabel.textContent = 'Kilowatts (kW)';
+            }
+        }
+
+        swapBtn.addEventListener('click', () => {
+            isKwToBtu = !isKwToBtu;
+            topInput.value = bottomOutput.value;
+            updateUI();
+            calculate();
+        });
+
+        topInput.addEventListener('input', calculate);
+
+        updateUI(); // Initial setup
+    }
+
+    /**
+     * Initializes the Ductulator Calculator.
+     */
+    function initializeDuctulator(container) {
+        if (!container) return;
+        const airflowCFMInput = container.querySelector('#duct-airflowCFM');
+        const sizingMethodRadios = container.querySelectorAll('input[name="duct-sizingMethod"]');
+        const velocityInputContainer = container.querySelector('#duct-velocityInputContainer');
+        const velocityFPMInput = container.querySelector('#duct-velocityFPM');
+        const frictionLossInputContainer = container.querySelector('#duct-frictionLossInputContainer');
+        const frictionLossWGInput = container.querySelector('#duct-frictionLossWG');
+        const ductShapeRadios = container.querySelectorAll('input[name="duct-ductShape"]');
+        const aspectRatioContainer = container.querySelector('#duct-aspectRatioContainer');
+        const aspectRatioInput = container.querySelector('#duct-aspectRatio');
+        const calculateBtn = container.querySelector('#duct-calculateBtn');
+        const roundResultDiv = container.querySelector('#duct-roundResult');
+        const rectangularResultDiv = container.querySelector('#duct-rectangularResult');
+        const flexResultDiv = container.querySelector('#duct-flexResult');
+        const roundDiameterSpan = container.querySelector('#duct-roundDiameter');
+        const rectWidthSpan = container.querySelector('#duct-rectWidth');
+        const rectHeightSpan = container.querySelector('#duct-rectHeight');
+        const flexDiameterSpan = container.querySelector('#duct-flexDiameter');
+        const areaResultDiv = container.querySelector('#duct-areaResult');
+        const calculatedAreaSpan = container.querySelector('#duct-calculatedArea');
+        const messageBox = container.querySelector('#duct-messageBox');
+        const messageText = container.querySelector('#duct-messageText');
+        const FLEX_DUCT_CORRECTION_FACTOR = 1.25;
+
+        function showMessage(message) {
+            messageText.textContent = message;
+            messageBox.classList.remove('hidden');
+        }
+        function hideMessage() {
+            messageBox.classList.add('hidden');
+            messageText.textContent = '';
+        }
+        function hideAllResults() {
+            roundResultDiv.classList.add('hidden');
+            rectangularResultDiv.classList.add('hidden');
+            flexResultDiv.classList.add('hidden');
+            areaResultDiv.classList.add('hidden');
+        }
+
+        sizingMethodRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'velocity') {
+                    velocityInputContainer.classList.remove('hidden');
+                    frictionLossInputContainer.classList.add('hidden');
+                } else {
+                    velocityInputContainer.classList.add('hidden');
+                    frictionLossInputContainer.classList.remove('hidden');
+                }
+                hideAllResults();
+                hideMessage();
+            });
+        });
+
+        ductShapeRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'rectangular') {
+                    aspectRatioContainer.classList.remove('hidden');
+                } else {
+                    aspectRatioContainer.classList.add('hidden');
+                }
+                hideAllResults();
+                hideMessage();
+            });
+        });
+
+        calculateBtn.addEventListener('click', () => {
+            hideAllResults();
+            hideMessage();
+            const airflowCFM = parseFloat(airflowCFMInput.value);
+            const selectedSizingMethod = container.querySelector('input[name="duct-sizingMethod"]:checked').value;
+            const selectedShape = container.querySelector('input[name="duct-ductShape"]:checked').value;
+            const aspectRatio = parseFloat(aspectRatioInput.value);
+            let areaSqIn, diameterEquivalent;
+
+            if (isNaN(airflowCFM) || airflowCFM <= 0) {
+                showMessage('Please enter a valid positive number for Airflow (CFM).');
+                return;
+            }
+
+            if (selectedSizingMethod === 'velocity') {
+                const velocityFPM = parseFloat(velocityFPMInput.value);
+                if (isNaN(velocityFPM) || velocityFPM <= 0) {
+                    showMessage('Please enter a valid positive number for Velocity (FPM).');
+                    return;
+                }
+                areaSqIn = (airflowCFM / velocityFPM) * 144;
+                diameterEquivalent = 2 * Math.sqrt(areaSqIn / Math.PI);
+            } else {
+                const frictionLossWG = parseFloat(frictionLossWGInput.value);
+                if (isNaN(frictionLossWG) || frictionLossWG <= 0) {
+                    showMessage('Please enter a valid positive number for Friction Loss (in. wg / 100 ft).');
+                    return;
+                }
+                diameterEquivalent = Math.pow((0.109136 * Math.pow(airflowCFM, 1.9)) / frictionLossWG, 1 / 5.02);
+                areaSqIn = Math.PI * Math.pow(diameterEquivalent / 2, 2);
+            }
+
+            if (selectedShape === 'rectangular' && (isNaN(aspectRatio) || aspectRatio <= 0)) {
+                showMessage('Please enter a valid positive number for Aspect Ratio.');
+                return;
+            }
+
+            calculatedAreaSpan.textContent = areaSqIn.toFixed(2);
+            areaResultDiv.classList.remove('hidden');
+
+            if (selectedShape === 'round') {
+                roundDiameterSpan.textContent = diameterEquivalent.toFixed(2);
+                roundResultDiv.classList.remove('hidden');
+            } else if (selectedShape === 'rectangular') {
+                const height = Math.sqrt(areaSqIn / aspectRatio);
+                const width = aspectRatio * height;
+                rectWidthSpan.textContent = width.toFixed(2);
+                rectHeightSpan.textContent = height.toFixed(2);
+                rectangularResultDiv.classList.remove('hidden');
+            } else if (selectedShape === 'flex') {
+                const flexDiameter = diameterEquivalent * FLEX_DUCT_CORRECTION_FACTOR;
+                flexDiameterSpan.textContent = flexDiameter.toFixed(2);
+                flexResultDiv.classList.remove('hidden');
+            }
+        });
+        
+        // Initial state
+        container.querySelector('input[name="duct-sizingMethod"][value="frictionLoss"]').checked = true;
+        velocityInputContainer.classList.add('hidden');
+        frictionLossInputContainer.classList.remove('hidden');
+        if (container.querySelector('input[name="duct-ductShape"]:checked').value !== 'rectangular') {
+            aspectRatioContainer.classList.add('hidden');
+        }
+    }
+    
+    /**
+     * Initializes the Clock Calculator.
+     */
+    function initializeClockCalc(container) {
+        if (!container) return;
+        const startTimeInput = container.querySelector('#clock-startTime');
+        const endTimeInput = container.querySelector('#clock-endTime');
+        const calculateBtn = container.querySelector('#clock-calculateBtn');
+        const resultContainer = container.querySelector('#clock-result-container');
+        const resultDisplay = container.querySelector('#clock-result');
+        const messageBox = container.querySelector('#clock-messageBox');
+
+        function calculateTimeDifference() {
+            const startTime = startTimeInput.value;
+            const endTime = endTimeInput.value;
+
+            if (!startTime || !endTime) {
+                resultContainer.classList.add('hidden');
+                messageBox.classList.remove('hidden');
+                return;
+            }
+            
+            messageBox.classList.add('hidden');
+            const startDate = new Date(`1970-01-01T${startTime}:00`);
+            const endDate = new Date(`1970-01-01T${endTime}:00`);
+            let diffInMillis = endDate.getTime() - startDate.getTime();
+
+            if (diffInMillis < 0) {
+                diffInMillis += 24 * 60 * 60 * 1000;
+            }
+
+            const diffInHours = diffInMillis / 3600000;
+            resultDisplay.textContent = diffInHours.toFixed(2);
+            resultContainer.classList.remove('hidden');
+        }
+        calculateBtn.addEventListener('click', calculateTimeDifference);
+    }
+
+    /**
+     * Initializes the Concrete Volume Calculator.
+     */
+    function initializeConcreteCalc(container) {
+        if (!container) return;
+        const lengthInput = container.querySelector('#concrete-length');
+        const widthInput = container.querySelector('#concrete-width');
+        const thicknessInput = container.querySelector('#concrete-thickness');
+        const volumeSpan = container.querySelector('#concrete-volume');
+
+        function calculateVolume() {
+            const length = parseFloat(lengthInput.value);
+            const width = parseFloat(widthInput.value);
+            const thickness = parseFloat(thicknessInput.value);
+
+            if (!isNaN(length) && !isNaN(width) && !isNaN(thickness)) {
+                const volumeCubicFeet = length * width * (thickness / 12);
+                const volumeCubicYards = volumeCubicFeet / 27;
+                volumeSpan.textContent = volumeCubicYards.toFixed(2);
+            } else {
+                volumeSpan.textContent = '...';
+            }
+        }
+
+        lengthInput.addEventListener('input', calculateVolume);
+        widthInput.addEventListener('input', calculateVolume);
+        thicknessInput.addEventListener('input', calculateVolume);
+    }
+
+    // Initialize all calculators on the page
+    init();
+});
