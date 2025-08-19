@@ -158,36 +158,46 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Widget 5: Concrete Volume Calculator -->
-            <div id="concrete-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
-                <h2 class="text-2xl font-bold text-white mb-6 text-center">Concrete Volume</h2>
-                <div class="space-y-5">
-                    <div>
-                        <label for="concrete-length" class="block text-sm font-medium text-gray-300 mb-2">Length (ft)</label>
-                        <input type="number" id="concrete-length" placeholder="e.g., 10" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
-                    </div>
-                    <div>
-                        <label for="concrete-width" class="block text-sm font-medium text-gray-300 mb-2">Width (ft)</label>
-                        <input type="number" id="concrete-width" placeholder="e.g., 10" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
-                    </div>
-                    <div>
-                        <label for="concrete-thickness" class="block text-sm font-medium text-gray-300 mb-2">Thickness (in)</label>
-                        <input type="number" id="concrete-thickness" placeholder="e.g., 4" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
-                    </div>
-                </div>
-                <div class="mt-auto pt-5">
-                    <div class="p-5 bg-gray-900 rounded-xl">
-                        <h3 class="text-xl font-bold text-cyan-400 mb-4">Results</h3>
-                        <div class="space-y-3 text-gray-300">
-                           <p><span class="font-semibold">Volume:</span> <span id="concrete-volume" class="text-white font-bold">...</span> cubic yards</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
+	
+			<!-- Widget 5: Voltage Drop Calculator -->
+			<div id="voltage-drop-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
+				<h2 class="text-2xl font-bold text-white mb-6 text-center">Voltage Drop Calculator</h2>
+				<div class="space-y-5">
+					<div>
+						<label for="voltage-start" class="block text-sm font-medium text-gray-300 mb-2">Starting Voltage (V)</label>
+						<input type="number" id="voltage-start" value="120" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+					</div>
+					<div>
+						<label for="voltage-current" class="block text-sm font-medium text-gray-300 mb-2">Current (Amps)</label>
+						<input type="number" id="voltage-current" placeholder="e.g., 15" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+					</div>
+					<div>
+						<label for="voltage-awg" class="block text-sm font-medium text-gray-300 mb-2">Wire Gauge (AWG)</label>
+						<select id="voltage-awg" class="w-full p-3 bg-gray-700 text-white border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+							<option value="16240">10 AWG</option>
+							<option value="10380" selected>12 AWG</option>
+							<option value="6530">14 AWG</option>
+							<option value="4110">16 AWG</option>
+							<option value="2583">18 AWG</option>
+						</select>
+					</div>
+					<div>
+						<label for="voltage-distance" class="block text-sm font-medium text-gray-300 mb-2">Distance (one-way, ft)</label>
+						<input type="number" id="voltage-distance" placeholder="e.g., 100" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+					</div>
+				</div>
+				<div class="mt-auto pt-5">
+					<div class="p-5 bg-gray-900 rounded-xl">
+						<h3 class="text-xl font-bold text-cyan-400 mb-4">Results</h3>
+						<div class="space-y-3 text-gray-300">
+						   <p><span class="font-semibold">Voltage Drop:</span> <span id="voltage-drop-v" class="text-white font-bold">...</span> V</p>
+						   <p><span class="font-semibold">Drop Percentage:</span> <span id="voltage-drop-pct" class="text-white font-bold">...</span> %</p>
+						   <p><span class="font-semibold">Voltage at End:</span> <span id="voltage-end" class="text-white font-bold">...</span> V</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 
     <!-- Link to your new script file -->
     <script src="scripts.js"></script>
