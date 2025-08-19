@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeHvacCalc(document.getElementById('hvac-calc-widget'));
         initializeDuctulator(document.getElementById('duct-calc-widget'));
         initializeClockCalc(document.getElementById('clock-calc-widget'));
-        initializeConcreteCalc(document.getElementById('concrete-calc-widget'));
+        // initializeConcreteCalc(document.getElementById('concrete-calc-widget'));
+		initializeVoltageDropCalc(document.getElementById('voltage-drop-widget'));
+}
     }
 
     /**
@@ -423,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const lengthInput = container.querySelector('#concrete-length');
         const widthInput = container.querySelector('#concrete-width');
         const thicknessInput = container.querySelector('#concrete-thickness');
-        const volumeSpan = container.querySelector('#concrete-volume');
+        // const volumeSpan = container.querySelector('#concrete-volume');
 
         function calculateVolume() {
             const length = parseFloat(lengthInput.value);
@@ -443,6 +445,54 @@ document.addEventListener('DOMContentLoaded', () => {
         widthInput.addEventListener('input', calculateVolume);
         thicknessInput.addEventListener('input', calculateVolume);
     }
+	
+	/**
+	 * Initializes the Voltage Drop Calculator.
+	 */
+	function initializeVoltageDropCalc(container) {
+		if (!container) return;
+		const startVoltageInput = container.querySelector('#voltage-start');
+		const currentInput = container.querySelector('#voltage-current');
+		const awgSelect = container.querySelector('#voltage-awg');
+		const distanceInput = container.querySelector('#voltage-distance');
+		const dropVSpan = container.querySelector('#voltage-drop-v');
+		const dropPctSpan = container.querySelector('#voltage-drop-pct');
+		const endVoltageSpan = container.querySelector('#voltage-end');
+
+		// K value for copper wire (resistivity)
+		const K_COPPER = 12.9;
+
+		function calculateVoltageDrop() {
+			const startVoltage = parseFloat(startVoltageInput.value);
+			const current = parseFloat(currentInput.value);
+			const cma = parseFloat(awgSelect.value); // Circular Mil Area from select value
+			const distance = parseFloat(distanceInput.value);
+
+			if ([startVoltage, current, cma, distance].some(isNaN)) {
+				dropVSpan.textContent = '...';
+				dropPctSpan.textContent = '...';
+				endVoltageSpan.textContent = '...';
+				return;
+			}
+
+			// Voltage Drop Formula: VD = 2 * K * I * L / CMA
+			// We use 2 * L because distance is one-way, but current flows both ways.
+			const voltageDrop = (2 * K_COPPER * current * distance) / cma;
+			const endVoltage = startVoltage - voltageDrop;
+			const dropPercentage = (voltageDrop / startVoltage) * 100;
+
+			dropVSpan.textContent = voltageDrop.toFixed(2);
+			dropPctSpan.textContent = dropPercentage.toFixed(2);
+			endVoltageSpan.textContent = endVoltage.toFixed(2);
+		}
+
+		[startVoltageInput, currentInput, awgSelect, distanceInput].forEach(el => {
+			el.addEventListener('input', calculateVoltageDrop);
+		});
+
+		// Initial calculation on load
+		calculateVoltageDrop();
+	}
 
     // Initialize all calculators on the page
     init();
