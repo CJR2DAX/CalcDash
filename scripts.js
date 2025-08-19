@@ -8,8 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeHvacCalc(document.getElementById('hvac-calc-widget'));
         initializeDuctulator(document.getElementById('duct-calc-widget'));
         initializeClockCalc(document.getElementById('clock-calc-widget'));
-		initializeVoltageDropCalc(document.getElementById('voltage-drop-widget'));
-}
+        initializeVoltageDropCalc(document.getElementById('voltage-drop-widget'));
     }
 
     /**
@@ -189,60 +188,131 @@ document.addEventListener('DOMContentLoaded', () => {
         container.querySelector('button[data-op="add"]').classList.add('arch-op-active');
         calculate();
     }
+	
+	/**
+	 * Initializes the HVAC Conversion Calculator.
+	 */
+	function initializeHvacCalc(container) {
+		if (!container) return;
+		const conversionTypeSelect = container.querySelector('#hvac-conversion-type');
+		const equipmentContainer = container.querySelector('#hvac-equipment-type-container');
+		const equipmentTypeSelect = container.querySelector('#hvac-equipment-type');
+		const title = container.querySelector('#hvac-title');
+		const topInput = container.querySelector('#hvac-input-top');
+		const topLabel = container.querySelector('#hvac-label-top');
+		const bottomOutput = container.querySelector('#hvac-output-bottom');
+		const bottomLabel = container.querySelector('#hvac-label-bottom');
+		const swapBtn = container.querySelector('#hvac-swap-btn');
+		
+		// Conversion constants from MINHERS chart
+		const CONVERSION_FACTORS = {
+			btu_kw: 3412.14,
+			seer_seer2: {
+				ductless: 1.00,
+				ducted_split: 0.95,
+				ducted_packaged: 0.95
+			},
+			hspf_hspf2: {
+				ductless: 0.90,
+				ducted_split: 0.85,
+				ducted_packaged: 0.84
+			}
+		};
 
-    /**
-     * Initializes the HVAC Conversion Calculator.
-     */
-    function initializeHvacCalc(container) {
-        if (!container) return;
-        const title = container.querySelector('#hvac-title');
-        const topInput = container.querySelector('#hvac-input-top');
-        const topLabel = container.querySelector('#hvac-label-top');
-        const bottomOutput = container.querySelector('#hvac-output-bottom');
-        const bottomLabel = container.querySelector('#hvac-label-bottom');
-        const swapBtn = container.querySelector('#hvac-swap-btn');
-        
-        const BTU_PER_KW = 3412.14;
-        let isKwToBtu = false;
+		let modeStates = {
+			btu_kw: { isForward: true }, // true: Btu/h -> kW
+			seer_seer2: { isForward: false }, // false: SEER2 -> SEER (Default)
+			hspf_hspf2: { isForward: false }  // false: HSPF2 -> HSPF (Default)
+		};
 
-        function calculate() {
-            const sourceValue = parseFloat(topInput.value);
-            if (!isNaN(sourceValue) && topInput.value.trim() !== '') {
-                if (isKwToBtu) {
-                    bottomOutput.value = (sourceValue * BTU_PER_KW).toFixed(2);
-                } else {
-                    bottomOutput.value = (sourceValue / BTU_PER_KW).toFixed(4);
-                }
-            } else {
-                bottomOutput.value = '';
-            }
-        }
+		function updateCalculator() {
+			const conversionType = conversionTypeSelect.value;
+			const isForward = modeStates[conversionType].isForward;
+			const equipmentType = equipmentTypeSelect.value;
+			
+			let titleText, topLabelText, bottomLabelText, topPlaceholder, factor;
 
-        function updateUI() {
-            if (isKwToBtu) {
-                title.textContent = 'Kilowatts (kW) to Btu/h';
-                topLabel.textContent = 'Kilowatts (kW)';
-                topInput.placeholder = 'Enter value in kW';
-                bottomLabel.textContent = 'Btu/h';
-            } else {
-                title.textContent = 'Btu/h to Kilowatts (kW)';
-                topLabel.textContent = 'Btu/h';
-                topInput.placeholder = 'Enter value in Btu/h';
-                bottomLabel.textContent = 'Kilowatts (kW)';
-            }
-        }
+			// Show/hide equipment type dropdown
+			if (conversionType === 'seer_seer2' || conversionType === 'hspf_hspf2') {
+				equipmentContainer.classList.remove('hidden');
+			} else {
+				equipmentContainer.classList.add('hidden');
+			}
 
-        swapBtn.addEventListener('click', () => {
-            isKwToBtu = !isKwToBtu;
-            topInput.value = bottomOutput.value;
-            updateUI();
-            calculate();
-        });
+			switch(conversionType) {
+				case 'btu_kw':
+					factor = CONVERSION_FACTORS.btu_kw;
+					if (isForward) {
+						titleText = 'Btu/h to Kilowatts (kW)';
+						topLabelText = 'Btu/h'; bottomLabelText = 'Kilowatts (kW)';
+						topPlaceholder = 'Enter value in Btu/h';
+					} else {
+						titleText = 'Kilowatts (kW) to Btu/h';
+						topLabelText = 'Kilowatts (kW)'; bottomLabelText = 'Btu/h';
+						topPlaceholder = 'Enter value in kW';
+					}
+					break;
+				case 'seer_seer2':
+					factor = CONVERSION_FACTORS.seer_seer2[equipmentType];
+					 if (isForward) {
+						titleText = 'SEER to SEER2';
+						topLabelText = 'SEER'; bottomLabelText = 'SEER2';
+						topPlaceholder = 'Enter SEER value';
+					} else {
+						titleText = 'SEER2 to SEER';
+						topLabelText = 'SEER2'; bottomLabelText = 'SEER';
+						topPlaceholder = 'Enter SEER2 value';
+					}
+					break;
+				case 'hspf_hspf2':
+					factor = CONVERSION_FACTORS.hspf_hspf2[equipmentType];
+					 if (isForward) {
+						titleText = 'HSPF to HSPF2';
+						topLabelText = 'HSPF'; bottomLabelText = 'HSPF2';
+						topPlaceholder = 'Enter HSPF value';
+					} else {
+						titleText = 'HSPF2 to HSPF';
+						topLabelText = 'HSPF2'; bottomLabelText = 'HSPF';
+						topPlaceholder = 'Enter HSPF2 value';
+					}
+					break;
+			}
 
-        topInput.addEventListener('input', calculate);
+			title.textContent = titleText;
+			topLabel.textContent = topLabelText;
+			topInput.placeholder = topPlaceholder;
+			bottomLabel.textContent = bottomLabelText;
+			
+			const sourceValue = parseFloat(topInput.value);
+			let result = '';
+			if (!isNaN(sourceValue) && topInput.value.trim() !== '') {
+				if (conversionType === 'btu_kw') {
+					 result = isForward ? (sourceValue / factor).toFixed(4) : (sourceValue * factor).toFixed(2);
+				} else {
+					 result = isForward ? (sourceValue * factor).toFixed(2) : (sourceValue / factor).toFixed(2);
+				}
+			}
+			bottomOutput.value = result;
+		}
 
-        updateUI(); // Initial setup
-    }
+		swapBtn.addEventListener('click', () => {
+			const conversionType = conversionTypeSelect.value;
+			modeStates[conversionType].isForward = !modeStates[conversionType].isForward;
+			topInput.value = bottomOutput.value;
+			updateCalculator();
+		});
+
+		[conversionTypeSelect, equipmentTypeSelect].forEach(el => {
+			el.addEventListener('change', () => {
+				topInput.value = '';
+				updateCalculator();
+			});
+		});
+
+		topInput.addEventListener('input', updateCalculator);
+
+		updateCalculator(); 
+	}
 
     /**
      * Initializes the Ductulator Calculator.
@@ -415,54 +485,54 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         calculateBtn.addEventListener('click', calculateTimeDifference);
     }
-	
-	/**
-	 * Initializes the Voltage Drop Calculator.
-	 */
-	function initializeVoltageDropCalc(container) {
-		if (!container) return;
-		const startVoltageInput = container.querySelector('#voltage-start');
-		const currentInput = container.querySelector('#voltage-current');
-		const awgSelect = container.querySelector('#voltage-awg');
-		const distanceInput = container.querySelector('#voltage-distance');
-		const dropVSpan = container.querySelector('#voltage-drop-v');
-		const dropPctSpan = container.querySelector('#voltage-drop-pct');
-		const endVoltageSpan = container.querySelector('#voltage-end');
+    
+    /**
+     * Initializes the Voltage Drop Calculator.
+     */
+    function initializeVoltageDropCalc(container) {
+        if (!container) return;
+        const startVoltageInput = container.querySelector('#voltage-start');
+        const currentInput = container.querySelector('#voltage-current');
+        const awgSelect = container.querySelector('#voltage-awg');
+        const distanceInput = container.querySelector('#voltage-distance');
+        const dropVSpan = container.querySelector('#voltage-drop-v');
+        const dropPctSpan = container.querySelector('#voltage-drop-pct');
+        const endVoltageSpan = container.querySelector('#voltage-end');
 
-		// K value for copper wire (resistivity)
-		const K_COPPER = 12.9;
+        // K value for copper wire (resistivity)
+        const K_COPPER = 12.9;
 
-		function calculateVoltageDrop() {
-			const startVoltage = parseFloat(startVoltageInput.value);
-			const current = parseFloat(currentInput.value);
-			const cma = parseFloat(awgSelect.value); // Circular Mil Area from select value
-			const distance = parseFloat(distanceInput.value);
+        function calculateVoltageDrop() {
+            const startVoltage = parseFloat(startVoltageInput.value);
+            const current = parseFloat(currentInput.value);
+            const cma = parseFloat(awgSelect.value); // Circular Mil Area from select value
+            const distance = parseFloat(distanceInput.value);
 
-			if ([startVoltage, current, cma, distance].some(isNaN)) {
-				dropVSpan.textContent = '...';
-				dropPctSpan.textContent = '...';
-				endVoltageSpan.textContent = '...';
-				return;
-			}
+            if ([startVoltage, current, cma, distance].some(isNaN)) {
+                dropVSpan.textContent = '...';
+                dropPctSpan.textContent = '...';
+                endVoltageSpan.textContent = '...';
+                return;
+            }
 
-			// Voltage Drop Formula: VD = 2 * K * I * L / CMA
-			// We use 2 * L because distance is one-way, but current flows both ways.
-			const voltageDrop = (2 * K_COPPER * current * distance) / cma;
-			const endVoltage = startVoltage - voltageDrop;
-			const dropPercentage = (voltageDrop / startVoltage) * 100;
+            // Voltage Drop Formula: VD = 2 * K * I * L / CMA
+            // We use 2 * L because distance is one-way, but current flows both ways.
+            const voltageDrop = (2 * K_COPPER * current * distance) / cma;
+            const endVoltage = startVoltage - voltageDrop;
+            const dropPercentage = (voltageDrop / startVoltage) * 100;
 
-			dropVSpan.textContent = voltageDrop.toFixed(2);
-			dropPctSpan.textContent = dropPercentage.toFixed(2);
-			endVoltageSpan.textContent = endVoltage.toFixed(2);
-		}
+            dropVSpan.textContent = voltageDrop.toFixed(2);
+            dropPctSpan.textContent = dropPercentage.toFixed(2);
+            endVoltageSpan.textContent = endVoltage.toFixed(2);
+        }
 
-		[startVoltageInput, currentInput, awgSelect, distanceInput].forEach(el => {
-			el.addEventListener('input', calculateVoltageDrop);
-		});
+        [startVoltageInput, currentInput, awgSelect, distanceInput].forEach(el => {
+            el.addEventListener('input', calculateVoltageDrop);
+        });
 
-		// Initial calculation on load
-		calculateVoltageDrop();
-	}
+        // Initial calculation on load
+        calculateVoltageDrop();
+    }
 
     // Initialize all calculators on the page
     init();
