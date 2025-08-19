@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeHvacCalc(document.getElementById('hvac-calc-widget'));
         initializeDuctulator(document.getElementById('duct-calc-widget'));
         initializeClockCalc(document.getElementById('clock-calc-widget'));
-        // initializeConcreteCalc(document.getElementById('concrete-calc-widget'));
 		initializeVoltageDropCalc(document.getElementById('voltage-drop-widget'));
 }
     }
@@ -415,35 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
             resultContainer.classList.remove('hidden');
         }
         calculateBtn.addEventListener('click', calculateTimeDifference);
-    }
-
-    /**
-     * Initializes the Concrete Volume Calculator.
-     */
-    function initializeConcreteCalc(container) {
-        if (!container) return;
-        const lengthInput = container.querySelector('#concrete-length');
-        const widthInput = container.querySelector('#concrete-width');
-        const thicknessInput = container.querySelector('#concrete-thickness');
-        // const volumeSpan = container.querySelector('#concrete-volume');
-
-        function calculateVolume() {
-            const length = parseFloat(lengthInput.value);
-            const width = parseFloat(widthInput.value);
-            const thickness = parseFloat(thicknessInput.value);
-
-            if (!isNaN(length) && !isNaN(width) && !isNaN(thickness)) {
-                const volumeCubicFeet = length * width * (thickness / 12);
-                const volumeCubicYards = volumeCubicFeet / 27;
-                volumeSpan.textContent = volumeCubicYards.toFixed(2);
-            } else {
-                volumeSpan.textContent = '...';
-            }
-        }
-
-        lengthInput.addEventListener('input', calculateVolume);
-        widthInput.addEventListener('input', calculateVolume);
-        thicknessInput.addEventListener('input', calculateVolume);
     }
 	
 	/**
