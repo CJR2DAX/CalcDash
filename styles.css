@@ -1,0 +1,15 @@
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Style for the active operation button in the architectural calculator */
+.arch-op-active {
+    background-color: #06b6d4 !important; /* cyan-500 */
+    color: #ffffff !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Style to make the clock icon in time inputs white */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
