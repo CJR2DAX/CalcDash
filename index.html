@@ -23,49 +23,103 @@
         <!-- Grid for Calculator Widgets -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
 
-            <!-- Widget 1: Ductulator -->
-            <div id="duct-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
-                <h2 class="text-2xl font-bold text-white mb-6 text-center">Ductulator</h2>
-                <div class="space-y-5">
-                    <div>
-                        <label for="duct-airflowCFM" class="block text-sm font-medium text-gray-300 mb-2">Airflow (CFM)</label>
-                        <input type="number" id="duct-airflowCFM" placeholder="e.g., 1000" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Sizing Method</label>
-                        <div class="flex space-x-4"><label class="inline-flex items-center"><input type="radio" name="duct-sizingMethod" value="velocity" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Velocity</span></label><label class="inline-flex items-center"><input type="radio" name="duct-sizingMethod" value="frictionLoss" checked class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Friction Loss</span></label></div>
-                    </div>
-                    <div id="duct-velocityInputContainer" class="hidden">
-                        <label for="duct-velocityFPM" class="block text-sm font-medium text-gray-300 mb-2">Velocity (FPM)</label>
-                        <input type="number" id="duct-velocityFPM" placeholder="e.g., 700" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
-                    </div>
-                    <div id="duct-frictionLossInputContainer">
-                        <label for="duct-frictionLossWG" class="block text-sm font-medium text-gray-300 mb-2">Friction Loss (in. wg / 100 ft)</label>
-                        <input type="number" id="duct-frictionLossWG" placeholder="e.g., 0.1" step="0.01" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">Duct Shape</label>
-                        <div class="flex space-x-4"><label class="inline-flex items-center"><input type="radio" name="duct-ductShape" value="round" checked class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Round</span></label><label class="inline-flex items-center"><input type="radio" name="duct-ductShape" value="rectangular" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Rectangular</span></label><label class="inline-flex items-center"><input type="radio" name="duct-ductShape" value="flex" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600 rounded-full"><span class="ml-2 text-gray-300">Flex</span></label></div>
-                    </div>
-                    <div id="duct-aspectRatioContainer" class="hidden">
-                        <label for="duct-aspectRatio" class="block text-sm font-medium text-gray-300 mb-2">Aspect Ratio (W/H)</label>
-                        <input type="number" id="duct-aspectRatio" placeholder="e.g., 2" value="1" step="0.1" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
-                    </div>
-                </div>
-                <button id="duct-calculateBtn" class="w-full mt-6 bg-cyan-600 text-white p-3 rounded-lg font-semibold hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition duration-200 ease-in-out shadow-md hover:shadow-lg">Calculate</button>
-                <div id="duct-messageBox" class="mt-6 p-4 bg-red-900 bg-opacity-50 border border-red-500 text-red-300 rounded-lg hidden" role="alert"><p id="duct-messageText"></p></div>
-                <div class="mt-auto pt-5">
-                    <div class="p-5 bg-gray-900 rounded-xl">
-                        <h3 class="text-xl font-bold text-cyan-400 mb-4">Results</h3>
-                        <div class="space-y-3 text-gray-300">
-                            <div id="duct-roundResult" class="hidden"><p><span class="font-semibold">Round Duct:</span> <span id="duct-roundDiameter" class="text-white font-bold"></span> in</p></div>
-                            <div id="duct-rectangularResult" class="hidden"><p><span class="font-semibold">Rectangular Duct:</span> <span id="duct-rectWidth" class="text-white font-bold"></span>" W x <span id="duct-rectHeight" class="text-white font-bold"></span>" H</p></div>
-                            <div id="duct-flexResult" class="hidden"><p><span class="font-semibold">Flex Duct:</span> <span id="duct-flexDiameter" class="text-white font-bold"></span> in</p></div>
-                            <div id="duct-areaResult" class="hidden"><p><span class="font-semibold">Area:</span> <span id="duct-calculatedArea" class="text-white font-bold"></span> sq. in</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+			<!-- Widget 1: Ductulator -->
+			<div id="duct-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col w-full">
+				<h2 class="text-3xl font-bold text-white mb-6 text-center">Ductulator</h2>
+				<div class="space-y-5">
+					<!-- Airflow Input -->
+					<div>
+						<label for="duct-airflowCFM" class="block text-sm font-medium text-gray-300 mb-2">Airflow (CFM)</label>
+						<input type="number" id="duct-airflowCFM" placeholder="e.g., 1000" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+					</div>
+
+					<!-- Sizing Method Selection -->
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">Calculation Method</label>
+						<div class="flex flex-wrap gap-4">
+							<label class="inline-flex items-center"><input type="radio" name="duct-sizingMethod" value="frictionLoss" checked class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600"><span class="ml-2 text-gray-300">Size by Friction</span></label>
+							<label class="inline-flex items-center"><input type="radio" name="duct-sizingMethod" value="velocity" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600"><span class="ml-2 text-gray-300">Size by Velocity</span></label>
+							<label class="inline-flex items-center"><input type="radio" name="duct-sizingMethod" value="knownSize" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600"><span class="ml-2 text-gray-300">Find Friction</span></label>
+						</div>
+					</div>
+
+					<!-- Sizing Method Inputs -->
+					<div id="duct-velocityInputContainer" class="hidden">
+						<label for="duct-velocityFPM" class="block text-sm font-medium text-gray-300 mb-2">Velocity (FPM)</label>
+						<input type="number" id="duct-velocityFPM" placeholder="e.g., 700" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+					</div>
+					<div id="duct-frictionLossInputContainer">
+						<label for="duct-frictionLossWG" class="block text-sm font-medium text-gray-300 mb-2">Friction Loss (in. wg / 100 ft)</label>
+						<input type="number" id="duct-frictionLossWG" placeholder="e.g., 0.1" step="0.01" value="0.1" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+					</div>
+					
+					<!-- Duct Shape Selection -->
+					<div>
+						<label class="block text-sm font-medium text-gray-300 mb-2">Duct Shape</label>
+						<div class="flex space-x-4">
+							<label class="inline-flex items-center"><input type="radio" name="duct-ductShape" value="round" checked class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600"><span class="ml-2 text-gray-300">Round</span></label>
+							<label class="inline-flex items-center"><input type="radio" name="duct-ductShape" value="rectangular" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600"><span class="ml-2 text-gray-300">Rectangular</span></label>
+							<label class="inline-flex items-center"><input type="radio" name="duct-ductShape" value="flex" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600"><span class="ml-2 text-gray-300">Flex</span></label>
+						</div>
+					</div>
+
+					<!-- Inputs for Known Duct Size Method -->
+					<div id="duct-knownSizeContainer" class="hidden space-y-4">
+						 <div id="duct-knownRoundInput">
+							 <label for="duct-knownDiameter" class="block text-sm font-medium text-gray-300 mb-2">Round Diameter (in)</label>
+							 <input type="number" id="duct-knownDiameter" placeholder="e.g., 12" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+						 </div>
+						 <div id="duct-knownRectangularInput" class="hidden">
+							<div class="flex space-x-4">
+								<div class="flex-1">
+									 <label for="duct-knownWidth" class="block text-sm font-medium text-gray-300 mb-2">Width (in)</label>
+									 <input type="number" id="duct-knownWidth" placeholder="e.g., 12" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+								</div>
+								<div class="flex-1">
+									 <label for="duct-knownHeight" class="block text-sm font-medium text-gray-300 mb-2">Height (in)</label>
+									<input type="number" id="duct-knownHeight" placeholder="e.g., 8" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+								</div>
+							</div>
+						 </div>
+					</div>
+
+					<!-- Inputs for Rectangular Sizing -->
+					<div id="duct-rectangularSizingContainer" class="hidden space-y-4">
+						 <div>
+							<label class="block text-sm font-medium text-gray-300 mb-2">Rectangular Sizing Method</label>
+							<div class="flex space-x-4">
+								<label class="inline-flex items-center"><input type="radio" name="duct-rectMethod" value="aspectRatio" checked class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600"><span class="ml-2 text-gray-300">Aspect Ratio</span></label>
+								<label class="inline-flex items-center"><input type="radio" name="duct-rectMethod" value="oneSide" class="form-radio h-5 w-5 text-cyan-500 bg-gray-700 border-gray-600 focus:ring-cyan-600"><span class="ml-2 text-gray-300">One Side</span></label>
+							</div>
+						</div>
+						<div id="duct-aspectRatioContainer">
+							<label for="duct-aspectRatio" class="block text-sm font-medium text-gray-300 mb-2">Aspect Ratio (W/H)</label>
+							<input type="number" id="duct-aspectRatio" placeholder="e.g., 2" value="1" step="0.1" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+						</div>
+						<div id="duct-oneSideContainer" class="hidden">
+							<label for="duct-oneSideValue" class="block text-sm font-medium text-gray-300 mb-2">Known Side Dimension (in)</label>
+							<input type="number" id="duct-oneSideValue" placeholder="e.g., 12" class="w-full p-3 bg-gray-700 text-white placeholder-gray-500 border-2 border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-300">
+						</div>
+					</div>
+				</div>
+
+				<button id="duct-calculateBtn" class="w-full mt-6 bg-cyan-600 text-white p-3 rounded-lg font-semibold hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50 transition duration-200 ease-in-out shadow-md hover:shadow-lg">Calculate</button>
+				
+				<div id="duct-messageBox" class="mt-6 p-4 bg-red-900 bg-opacity-50 border border-red-500 text-red-300 rounded-lg hidden" role="alert"><p id="duct-messageText"></p></div>
+				
+				<div class="mt-auto pt-5">
+					<div class="p-5 bg-gray-900 rounded-xl">
+						<h3 class="text-xl font-bold text-cyan-400 mb-4">Results</h3>
+						<div class="space-y-3 text-gray-300">
+							<div id="duct-roundResult" class="hidden"><p><span class="font-semibold">Round Duct:</span> <span id="duct-roundDiameter" class="text-white font-bold"></span> in</p></div>
+							<div id="duct-rectangularResult" class="hidden"><p><span class="font-semibold">Rectangular Duct:</span> <span id="duct-rectWidth" class="text-white font-bold"></span>" W x <span id="duct-rectHeight" class="text-white font-bold"></span>" H</p></div>
+							<div id="duct-flexResult" class="hidden"><p><span class="font-semibold">Flex Duct:</span> <span id="duct-flexDiameter" class="text-white font-bold"></span> in</p></div>
+							<div id="duct-areaResult" class="hidden"><p><span class="font-semibold">Area:</span> <span id="duct-calculatedArea" class="text-white font-bold"></span> sq. in</p></div>
+							<div id="duct-frictionResult" class="hidden"><p><span class="font-semibold">Friction Rate:</span> <span id="duct-calculatedFriction" class="text-white font-bold"></span> in. wg / 100 ft</p></div>
+						</div>
+					</div>
+				</div>
+			</div>
 
             <!-- Widget 2: HVAC Conversion Calculator (Updated) -->
             <div id="hvac-calc-widget" class="bg-gray-800 text-white rounded-2xl shadow-2xl p-6 flex flex-col">
