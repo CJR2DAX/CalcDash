@@ -502,6 +502,7 @@ function initializeDuctulator(container) {
                 showMessage('Please enter valid positive values for width and height.');
                 return;
             }
+             // Correct Equivalent Diameter Formula
              equivalentDiameter = 1.30 * Math.pow(Math.pow(width * height, 0.625) / Math.pow(width + height, 0.25), 1);
         }
         
@@ -545,6 +546,7 @@ function initializeDuctulator(container) {
             const frictionLossSmooth = frictionLossWG_target / PDCF;
             
             diameterEquivalent = Math.pow((0.109136 * Math.pow(airflowCFM, 1.9)) / frictionLossSmooth, 1 / 5.02);
+            // We calculate area here just for display, but it's not used for rectangular sizing anymore
             areaSqIn = Math.PI * Math.pow(diameterEquivalent / 2, 2);
         }
 
@@ -569,17 +571,50 @@ function initializeDuctulator(container) {
                     showMessage('Please enter a valid positive number for Aspect Ratio.');
                     return;
                 }
-                height = Math.sqrt(areaSqIn / aspectRatio);
+                
+                // --- FIX: Use Equivalent Diameter formula, not Equivalent Area ---
+                // H = (D_eq * (R+1)^0.25) / (1.30 * R^0.625)
+                height = (diameterEquivalent * Math.pow(aspectRatio + 1, 0.25)) / (1.30 * Math.pow(aspectRatio, 0.625));
                 width = aspectRatio * height;
+                // --- End Fix ---
+
             } else { // oneSide
                 const oneSide = parseFloat(oneSideValueInput.value);
                  if (isNaN(oneSide) || oneSide <= 0) {
                     showMessage('Please enter a valid positive number for the known side dimension.');
                     return;
                 }
-                // Assuming the known side is width, calculate height.
-                width = oneSide;
-                height = areaSqIn / width;
+                
+                // --- FIX: Use Equivalent Diameter formula with an iterative solver ---
+                const knownWidth = oneSide;
+                
+                // Function to calculate D_eq from W and H
+                const getDeq = (w, h) => 1.30 * Math.pow(Math.pow(w * h, 0.625) / Math.pow(w + h, 0.25), 1);
+
+                // Iteratively find the unknown height (H) that results in the target D_eq
+                let minH = 0.01;
+                let maxH = knownWidth * 50; // Assume a very large max aspect ratio
+                let midH = 0;
+                let calculatedDeq = 0;
+                
+                for(let i = 0; i < 100; i++) { // 100 iterations is more than enough
+                     midH = (minH + maxH) / 2;
+                     calculatedDeq = getDeq(knownWidth, midH);
+                     
+                     if (Math.abs(calculatedDeq - diameterEquivalent) < 0.001) {
+                         break; // Close enough
+                     }
+                     
+                     // Adjust bounds for bisection search
+                     if (calculatedDeq < diameterEquivalent) {
+                         minH = midH; // Our H is too small, need to increase
+                     } else {
+                         maxH = midH; // Our H is too big, need to decrease
+                     }
+                }
+                width = knownWidth;
+                height = midH;
+                // --- End Fix ---
             }
 
             rectWidthSpan.textContent = width.toFixed(2);
@@ -597,7 +632,7 @@ function initializeDuctulator(container) {
 document.addEventListener('DOMContentLoaded', () => {
     const ductulatorWidget = document.getElementById('duct-calc-widget');
     if (ductulatorWidget) {
-        initializeDictulator(ductulatorWidget);
+        initializeDuctulator(ductulatorWidget);
     }
 });
     
@@ -686,4 +721,5 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize all calculators on the page
     init();
 });
+
 
