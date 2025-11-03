@@ -312,243 +312,294 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCalculator(); 
     }
 
-	/**
-	 * Initializes the Ductulator Calculator.
-	 */
-	function initializeDuctulator(container) {
-		if (!container) return;
-		// --- Query Selectors for all elements ---
-		const airflowCFMInput = container.querySelector('#duct-airflowCFM');
-		const sizingMethodRadios = container.querySelectorAll('input[name="duct-sizingMethod"]');
-		const ductShapeRadios = container.querySelectorAll('input[name="duct-ductShape"]');
-		const calculateBtn = container.querySelector('#duct-calculateBtn');
-		const messageBox = container.querySelector('#duct-messageBox');
-		const messageText = container.querySelector('#duct-messageText');
+/**
+ * Initializes the Ductulator Calculator.
+ */
+function initializeDuctulator(container) {
+    if (!container) return;
+    // --- Query Selectors for all elements ---
+    const airflowCFMInput = container.querySelector('#duct-airflowCFM');
+    const sizingMethodRadios = container.querySelectorAll('input[name="duct-sizingMethod"]');
+    const ductShapeRadios = container.querySelectorAll('input[name="duct-ductShape"]');
+    const calculateBtn = container.querySelector('#duct-calculateBtn');
+    const messageBox = container.querySelector('#duct-messageBox');
+    const messageText = container.querySelector('#duct-messageText');
 
-		// Input Containers
-		const velocityInputContainer = container.querySelector('#duct-velocityInputContainer');
-		const frictionLossInputContainer = container.querySelector('#duct-frictionLossInputContainer');
-		const knownSizeContainer = container.querySelector('#duct-knownSizeContainer');
-		const knownRoundInput = container.querySelector('#duct-knownRoundInput');
-		const knownRectangularInput = container.querySelector('#duct-knownRectangularInput');
-		const rectangularSizingContainer = container.querySelector('#duct-rectangularSizingContainer');
-		const aspectRatioContainer = container.querySelector('#duct-aspectRatioContainer');
-		const oneSideContainer = container.querySelector('#duct-oneSideContainer');
+    // Input Containers
+    const velocityInputContainer = container.querySelector('#duct-velocityInputContainer');
+    const frictionLossInputContainer = container.querySelector('#duct-frictionLossInputContainer');
+    const knownSizeContainer = container.querySelector('#duct-knownSizeContainer');
+    const knownRoundInput = container.querySelector('#duct-knownRoundInput');
+    const knownRectangularInput = container.querySelector('#duct-knownRectangularInput');
+    const rectangularSizingContainer = container.querySelector('#duct-rectangularSizingContainer');
+    const aspectRatioContainer = container.querySelector('#duct-aspectRatioContainer');
+    const oneSideContainer = container.querySelector('#duct-oneSideContainer');
+    const flexCompressionContainer = container.querySelector('#duct-flexCompressionContainer'); // NEW
 
-		// Input Fields
-		const velocityFPMInput = container.querySelector('#duct-velocityFPM');
-		const frictionLossWGInput = container.querySelector('#duct-frictionLossWG');
-		const knownDiameterInput = container.querySelector('#duct-knownDiameter');
-		const knownWidthInput = container.querySelector('#duct-knownWidth');
-		const knownHeightInput = container.querySelector('#duct-knownHeight');
-		const rectMethodRadios = container.querySelectorAll('input[name="duct-rectMethod"]');
-		const aspectRatioInput = container.querySelector('#duct-aspectRatio');
-		const oneSideValueInput = container.querySelector('#duct-oneSideValue');
-		
-		// Result Elements
-		const roundResultDiv = container.querySelector('#duct-roundResult');
-		const rectangularResultDiv = container.querySelector('#duct-rectangularResult');
-		const flexResultDiv = container.querySelector('#duct-flexResult');
-		const areaResultDiv = container.querySelector('#duct-areaResult');
-		const frictionResultDiv = container.querySelector('#duct-frictionResult');
-		const roundDiameterSpan = container.querySelector('#duct-roundDiameter');
-		const rectWidthSpan = container.querySelector('#duct-rectWidth');
-		const rectHeightSpan = container.querySelector('#duct-rectHeight');
-		const flexDiameterSpan = container.querySelector('#duct-flexDiameter');
-		const calculatedAreaSpan = container.querySelector('#duct-calculatedArea');
-		const calculatedFrictionSpan = container.querySelector('#duct-calculatedFriction');
-		
-		const FLEX_DUCT_CORRECTION_FACTOR = 1.25;
+    // Input Fields
+    const velocityFPMInput = container.querySelector('#duct-velocityFPM');
+    const frictionLossWGInput = container.querySelector('#duct-frictionLossWG');
+    const knownDiameterInput = container.querySelector('#duct-knownDiameter');
+    const knownWidthInput = container.querySelector('#duct-knownWidth');
+    const knownHeightInput = container.querySelector('#duct-knownHeight');
+    const rectMethodRadios = container.querySelectorAll('input[name="duct-rectMethod"]');
+    const aspectRatioInput = container.querySelector('#duct-aspectRatio');
+    const oneSideValueInput = container.querySelector('#duct-oneSideValue');
+    const flexCompressionInput = container.querySelector('#duct-flexCompression'); // NEW
+    
+    // Result Elements
+    const roundResultDiv = container.querySelector('#duct-roundResult');
+    const rectangularResultDiv = container.querySelector('#duct-rectangularResult');
+    const flexResultDiv = container.querySelector('#duct-flexResult');
+    const areaResultDiv = container.querySelector('#duct-areaResult');
+    const frictionResultDiv = container.querySelector('#duct-frictionResult');
+    const roundDiameterSpan = container.querySelector('#duct-roundDiameter');
+    const rectWidthSpan = container.querySelector('#duct-rectWidth');
+    const rectHeightSpan = container.querySelector('#duct-rectHeight');
+    const flexDiameterSpan = container.querySelector('#duct-flexDiameter');
+    const calculatedAreaSpan = container.querySelector('#duct-calculatedArea');
+    const calculatedFrictionSpan = container.querySelector('#duct-calculatedFriction');
+    
+    // --- Helper Functions ---
+    function showMessage(message) {
+        messageText.textContent = message;
+        messageBox.classList.remove('hidden');
+    }
 
-		// --- Helper Functions ---
-		function showMessage(message) {
-			messageText.textContent = message;
-			messageBox.classList.remove('hidden');
-		}
+    function hideMessage() {
+        messageBox.classList.add('hidden');
+        messageText.textContent = '';
+    }
 
-		function hideMessage() {
-			messageBox.classList.add('hidden');
-			messageText.textContent = '';
-		}
+    function hideAllResults() {
+        roundResultDiv.classList.add('hidden');
+        rectangularResultDiv.classList.add('hidden');
+        flexResultDiv.classList.add('hidden');
+        areaResultDiv.classList.add('hidden');
+        frictionResultDiv.classList.add('hidden');
+    }
 
-		function hideAllResults() {
-			roundResultDiv.classList.add('hidden');
-			rectangularResultDiv.classList.add('hidden');
-			flexResultDiv.classList.add('hidden');
-			areaResultDiv.classList.add('hidden');
-			frictionResultDiv.classList.add('hidden');
-		}
+    function updateInputVisibility() {
+        const selectedSizingMethod = container.querySelector('input[name="duct-sizingMethod"]:checked').value;
+        const selectedShape = container.querySelector('input[name="duct-ductShape"]:checked').value;
 
-		function updateInputVisibility() {
-			const selectedSizingMethod = container.querySelector('input[name="duct-sizingMethod"]:checked').value;
-			const selectedShape = container.querySelector('input[name="duct-ductShape"]:checked').value;
+        // Hide all optional containers first
+        velocityInputContainer.classList.add('hidden');
+        frictionLossInputContainer.classList.add('hidden');
+        knownSizeContainer.classList.add('hidden');
+        rectangularSizingContainer.classList.add('hidden');
+        knownRoundInput.classList.add('hidden');
+        knownRectangularInput.classList.add('hidden');
+        flexCompressionContainer.classList.add('hidden'); // NEW
 
-			// Hide all optional containers first
-			velocityInputContainer.classList.add('hidden');
-			frictionLossInputContainer.classList.add('hidden');
-			knownSizeContainer.classList.add('hidden');
-			rectangularSizingContainer.classList.add('hidden');
-			knownRoundInput.classList.add('hidden');
-			knownRectangularInput.classList.add('hidden');
+        // Show containers based on Sizing Method
+        if (selectedSizingMethod === 'velocity') {
+            velocityInputContainer.classList.remove('hidden');
+            if (selectedShape === 'rectangular') {
+                rectangularSizingContainer.classList.remove('hidden');
+            }
+        } else if (selectedSizingMethod === 'frictionLoss') {
+            frictionLossInputContainer.classList.remove('hidden');
+            if (selectedShape === 'rectangular') {
+                rectangularSizingContainer.classList.remove('hidden');
+            }
+        } else if (selectedSizingMethod === 'knownSize') {
+            knownSizeContainer.classList.remove('hidden');
+            if (selectedShape === 'round' || selectedShape === 'flex') {
+                knownRoundInput.classList.remove('hidden');
+            } else if (selectedShape === 'rectangular') {
+                knownRectangularInput.classList.remove('hidden');
+            }
+        }
 
-			// Show containers based on Sizing Method
-			if (selectedSizingMethod === 'velocity') {
-				velocityInputContainer.classList.remove('hidden');
-				if (selectedShape === 'rectangular') {
-					rectangularSizingContainer.classList.remove('hidden');
-				}
-			} else if (selectedSizingMethod === 'frictionLoss') {
-				frictionLossInputContainer.classList.remove('hidden');
-				if (selectedShape === 'rectangular') {
-					rectangularSizingContainer.classList.remove('hidden');
-				}
-			} else if (selectedSizingMethod === 'knownSize') {
-				knownSizeContainer.classList.remove('hidden');
-				if (selectedShape === 'round' || selectedShape === 'flex') {
-					knownRoundInput.classList.remove('hidden');
-				} else if (selectedShape === 'rectangular') {
-					knownRectangularInput.classList.remove('hidden');
-				}
-			}
-			
-			hideAllResults();
-			hideMessage();
-		}
+        // Show flex compression input if flex is selected
+        if (selectedShape === 'flex') {
+            flexCompressionContainer.classList.remove('hidden');
+        }
+        
+        hideAllResults();
+        hideMessage();
+    }
 
-		// --- Event Listeners ---
-		sizingMethodRadios.forEach(radio => radio.addEventListener('change', updateInputVisibility));
-		ductShapeRadios.forEach(radio => radio.addEventListener('change', updateInputVisibility));
+    // --- Event Listeners ---
+    sizingMethodRadios.forEach(radio => radio.addEventListener('change', updateInputVisibility));
+    ductShapeRadios.forEach(radio => radio.addEventListener('change', updateInputVisibility));
 
-		rectMethodRadios.forEach(radio => {
-			radio.addEventListener('change', () => {
-				if (radio.value === 'aspectRatio') {
-					aspectRatioContainer.classList.remove('hidden');
-					oneSideContainer.classList.add('hidden');
-				} else {
-					aspectRatioContainer.classList.add('hidden');
-					oneSideContainer.classList.remove('hidden');
-				}
-			});
-		});
+    rectMethodRadios.forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (radio.value === 'aspectRatio') {
+                aspectRatioContainer.classList.remove('hidden');
+                oneSideContainer.classList.add('hidden');
+            } else {
+                aspectRatioContainer.classList.add('hidden');
+                oneSideContainer.classList.remove('hidden');
+            }
+        });
+    });
 
-		calculateBtn.addEventListener('click', () => {
-			hideAllResults();
-			hideMessage();
-			const airflowCFM = parseFloat(airflowCFMInput.value);
-			const selectedSizingMethod = container.querySelector('input[name="duct-sizingMethod"]:checked').value;
-			const selectedShape = container.querySelector('input[name="duct-ductShape"]:checked').value;
+    calculateBtn.addEventListener('click', () => {
+        hideAllResults();
+        hideMessage();
+        const airflowCFM = parseFloat(airflowCFMInput.value);
+        const selectedSizingMethod = container.querySelector('input[name="duct-sizingMethod"]:checked').value;
+        const selectedShape = container.querySelector('input[name="duct-ductShape"]:checked').value;
 
-			if (isNaN(airflowCFM) || airflowCFM <= 0) {
-				showMessage('Please enter a valid positive number for Airflow (CFM).');
-				return;
-			}
+        if (isNaN(airflowCFM) || airflowCFM <= 0) {
+            showMessage('Please enter a valid positive number for Airflow (CFM).');
+            return;
+        }
 
-			if (selectedSizingMethod === 'knownSize') {
-				calculateFrictionRate(airflowCFM, selectedShape);
-			} else {
-				calculateDuctSize(airflowCFM, selectedSizingMethod, selectedShape);
-			}
-		});
-		
-		function calculateFrictionRate(airflowCFM, selectedShape) {
-			let equivalentDiameter;
-			
-			if (selectedShape === 'round' || selectedShape === 'flex') {
-				const diameter = parseFloat(knownDiameterInput.value);
-				if (isNaN(diameter) || diameter <= 0) {
-					showMessage('Please enter a valid positive diameter.');
-					return;
-				}
-				equivalentDiameter = diameter;
-			} else if (selectedShape === 'rectangular') {
-				const width = parseFloat(knownWidthInput.value);
-				const height = parseFloat(knownHeightInput.value);
-				if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0) {
-					showMessage('Please enter valid positive values for width and height.');
-					return;
-				}
-				 equivalentDiameter = 1.30 * Math.pow(Math.pow(width * height, 0.625) / Math.pow(width + height, 0.25), 1);
-			}
-			
-			if (equivalentDiameter) {
-				const frictionLoss = (0.109136 * Math.pow(airflowCFM, 1.9)) / Math.pow(equivalentDiameter, 5.02);
-				calculatedFrictionSpan.textContent = frictionLoss.toFixed(3);
-				frictionResultDiv.classList.remove('hidden');
-			}
-		}
+        if (selectedSizingMethod === 'knownSize') {
+            calculateFrictionRate(airflowCFM, selectedShape);
+        } else {
+            calculateDuctSize(airflowCFM, selectedSizingMethod, selectedShape);
+        }
+    });
 
-		function calculateDuctSize(airflowCFM, selectedSizingMethod, selectedShape) {
-			let areaSqIn, diameterEquivalent;
+    /**
+     * Gets the Pressure Drop Correction Factor (PDCF) based on compression %.
+     * Returns 1.0 for non-flex ducts.
+     * Returns an object { pdcf: value, error: message }
+     */
+    function getPDCF(selectedShape) {
+        if (selectedShape !== 'flex') {
+            return { pdcf: 1.0, error: null };
+        }
+        
+        const compressionPercent = parseFloat(flexCompressionInput.value);
+        if (isNaN(compressionPercent) || compressionPercent < 0 || compressionPercent > 100) {
+            return { pdcf: null, error: 'Please enter a valid compression percentage (0-100).' };
+        }
+        
+        const rc = compressionPercent / 100.0; // convert percent to ratio
+        // ASHRAE Formula: PDCF = 1 + 9.9 * rc
+        const pdcf = 1.0 + 9.9 * rc;
+        return { pdcf: pdcf, error: null };
+    }
+    
+    function calculateFrictionRate(airflowCFM, selectedShape) {
+        let equivalentDiameter;
+        
+        // Get PDCF
+        const pdcfResult = getPDCF(selectedShape);
+        if (pdcfResult.error) {
+            showMessage(pdcfResult.error);
+            return;
+        }
+        const PDCF = pdcfResult.pdcf;
 
-			if (selectedSizingMethod === 'velocity') {
-				const velocityFPM = parseFloat(velocityFPMInput.value);
-				if (isNaN(velocityFPM) || velocityFPM <= 0) {
-					showMessage('Please enter a valid positive number for Velocity (FPM).');
-					return;
-				}
-				areaSqIn = (airflowCFM / velocityFPM) * 144;
-				diameterEquivalent = 2 * Math.sqrt(areaSqIn / Math.PI);
-			} else { // frictionLoss
-				const frictionLossWG = parseFloat(frictionLossWGInput.value);
-				if (isNaN(frictionLossWG) || frictionLossWG <= 0) {
-					showMessage('Please enter a valid positive number for Friction Loss (in. wg / 100 ft).');
-					return;
-				}
-				diameterEquivalent = Math.pow((0.109136 * Math.pow(airflowCFM, 1.9)) / frictionLossWG, 1 / 5.02);
-				areaSqIn = Math.PI * Math.pow(diameterEquivalent / 2, 2);
-			}
+        if (selectedShape === 'round' || selectedShape === 'flex') {
+            const diameter = parseFloat(knownDiameterInput.value);
+            if (isNaN(diameter) || diameter <= 0) {
+                showMessage('Please enter a valid positive diameter.');
+                return;
+            }
+            equivalentDiameter = diameter;
+        } else if (selectedShape === 'rectangular') {
+            const width = parseFloat(knownWidthInput.value);
+            const height = parseFloat(knownHeightInput.value);
+            if (isNaN(width) || width <= 0 || isNaN(height) || height <= 0) {
+                showMessage('Please enter valid positive values for width and height.');
+                return;
+            }
+             equivalentDiameter = 1.30 * Math.pow(Math.pow(width * height, 0.625) / Math.pow(width + height, 0.25), 1);
+        }
+        
+        if (equivalentDiameter) {
+            // Calculate friction for an equivalent *smooth* duct
+            const frictionLossSmooth = (0.109136 * Math.pow(airflowCFM, 1.9)) / Math.pow(equivalentDiameter, 5.02);
+            // Apply PDCF for flex duct
+            const finalFrictionLoss = frictionLossSmooth * PDCF;
+            
+            calculatedFrictionSpan.textContent = finalFrictionLoss.toFixed(3);
+            frictionResultDiv.classList.remove('hidden');
+        }
+    }
 
-			calculatedAreaSpan.textContent = areaSqIn.toFixed(2);
-			areaResultDiv.classList.remove('hidden');
+    function calculateDuctSize(airflowCFM, selectedSizingMethod, selectedShape) {
+        let areaSqIn, diameterEquivalent;
 
-			if (selectedShape === 'round') {
-				roundDiameterSpan.textContent = diameterEquivalent.toFixed(2);
-				roundResultDiv.classList.remove('hidden');
-			} else if (selectedShape === 'flex') {
-				const flexDiameter = diameterEquivalent * FLEX_DUCT_CORRECTION_FACTOR;
-				flexDiameterSpan.textContent = flexDiameter.toFixed(2);
-				flexResultDiv.classList.remove('hidden');
-			} else if (selectedShape === 'rectangular') {
-				const rectMethod = container.querySelector('input[name="duct-rectMethod"]:checked').value;
-				let width, height;
+        // Get PDCF
+        const pdcfResult = getPDCF(selectedShape);
+        if (pdcfResult.error) {
+            showMessage(pdcfResult.error);
+            return;
+        }
+        const PDCF = pdcfResult.pdcf;
 
-				if (rectMethod === 'aspectRatio') {
-					const aspectRatio = parseFloat(aspectRatioInput.value);
-					if (isNaN(aspectRatio) || aspectRatio <= 0) {
-						showMessage('Please enter a valid positive number for Aspect Ratio.');
-						return;
-					}
-					height = Math.sqrt(areaSqIn / aspectRatio);
-					width = aspectRatio * height;
-				} else { // oneSide
-					const oneSide = parseFloat(oneSideValueInput.value);
-					 if (isNaN(oneSide) || oneSide <= 0) {
-						showMessage('Please enter a valid positive number for the known side dimension.');
-						return;
-					}
-					// Assuming the known side is width, calculate height. Could add a toggle later.
-					width = oneSide;
-					height = areaSqIn / width;
-				}
+        if (selectedSizingMethod === 'velocity') {
+            const velocityFPM = parseFloat(velocityFPMInput.value);
+            if (isNaN(velocityFPM) || velocityFPM <= 0) {
+                showMessage('Please enter a valid positive number for Velocity (FPM).');
+                return;
+            }
+            areaSqIn = (airflowCFM / velocityFPM) * 144;
+            diameterEquivalent = 2 * Math.sqrt(areaSqIn / Math.PI);
+        } else { // frictionLoss
+            const frictionLossWG_target = parseFloat(frictionLossWGInput.value);
+            if (isNaN(frictionLossWG_target) || frictionLossWG_target <= 0) {
+                showMessage('Please enter a valid positive number for Friction Loss (in. wg / 100 ft).');
+                return;
+            }
+            // Correct the target friction loss to find the equivalent smooth duct friction
+            const frictionLossSmooth = frictionLossWG_target / PDCF;
+            
+            diameterEquivalent = Math.pow((0.109136 * Math.pow(airflowCFM, 1.9)) / frictionLossSmooth, 1 / 5.02);
+            areaSqIn = Math.PI * Math.pow(diameterEquivalent / 2, 2);
+        }
 
-				rectWidthSpan.textContent = width.toFixed(2);
-				rectHeightSpan.textContent = height.toFixed(2);
-				rectangularResultDiv.classList.remove('hidden');
-			}
-		}
+        calculatedAreaSpan.textContent = areaSqIn.toFixed(2);
+        areaResultDiv.classList.remove('hidden');
 
-		// --- Initial State ---
-		updateInputVisibility();
-	}
+        if (selectedShape === 'round') {
+            roundDiameterSpan.textContent = diameterEquivalent.toFixed(2);
+            roundResultDiv.classList.remove('hidden');
+        } else if (selectedShape === 'flex') {
+            // The calculated diameter IS the flex duct diameter. No more correction factor.
+            const flexDiameter = diameterEquivalent;
+            flexDiameterSpan.textContent = flexDiameter.toFixed(2);
+            flexResultDiv.classList.remove('hidden');
+        } else if (selectedShape === 'rectangular') {
+            const rectMethod = container.querySelector('input[name="duct-rectMethod"]:checked').value;
+            let width, height;
 
-	// Initialize the calculator when the DOM is ready
-	// You might call this differently depending on your script loading strategy
-	document.addEventListener('DOMContentLoaded', () => {
-		const ductulatorWidget = document.getElementById('duct-calc-widget');
-		if (ductulatorWidget) {
-			initializeDuctulator(ductulatorWidget);
-		}
-	});
+            if (rectMethod === 'aspectRatio') {
+                const aspectRatio = parseFloat(aspectRatioInput.value);
+                if (isNaN(aspectRatio) || aspectRatio <= 0) {
+                    showMessage('Please enter a valid positive number for Aspect Ratio.');
+                    return;
+                }
+                height = Math.sqrt(areaSqIn / aspectRatio);
+                width = aspectRatio * height;
+            } else { // oneSide
+                const oneSide = parseFloat(oneSideValueInput.value);
+                 if (isNaN(oneSide) || oneSide <= 0) {
+                    showMessage('Please enter a valid positive number for the known side dimension.');
+                    return;
+                }
+                // Assuming the known side is width, calculate height.
+                width = oneSide;
+                height = areaSqIn / width;
+            }
+
+            rectWidthSpan.textContent = width.toFixed(2);
+            rectHeightSpan.textContent = height.toFixed(2);
+            rectangularResultDiv.classList.remove('hidden');
+        }
+    }
+
+    // --- Initial State ---
+    updateInputVisibility();
+}
+
+// Initialize the calculator when the DOM is ready
+// You might call this differently depending on your script loading strategy
+document.addEventListener('DOMContentLoaded', () => {
+    const ductulatorWidget = document.getElementById('duct-calc-widget');
+    if (ductulatorWidget) {
+        initializeDictulator(ductulatorWidget);
+    }
+});
     
     /**
      * Initializes the Clock Calculator.
@@ -635,3 +686,4 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize all calculators on the page
     init();
 });
+
